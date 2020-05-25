@@ -18,7 +18,7 @@ public class Client  {
     public void connection() throws IOException, InterruptedException {
         System.out.println("Подключение...");
         Thread.sleep(1000);
-        System.out.println("Добро пожаловать, вы подключились к серверу");
+        System.out.println("Добро пожаловать, вы подключились к серверу"); 
         String S = "Салам";
         socket.send(new DatagramPacket(S.getBytes(),S.length(),InetAddress.getLocalHost(),7658));
     }
