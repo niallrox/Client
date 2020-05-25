@@ -9,7 +9,7 @@ public class Client  {
     Scanner scanner = new Scanner(System.in);
     SocketAddress socketAddress = new InetSocketAddress(InetAddress.getLocalHost(),7658);
     DatagramSocket socket = new DatagramSocket();
-    byte [] b = new byte[2048];
+    byte [] b = new byte[500000000];
 
     public Client() throws SocketException, UnknownHostException {
     }
@@ -19,6 +19,8 @@ public class Client  {
         System.out.println("Подключение...");
         Thread.sleep(1000);
         System.out.println("Добро пожаловать, вы подключились к серверу");
+        String S = "Салам";
+        socket.send(new DatagramPacket(S.getBytes(),S.length(),InetAddress.getLocalHost(),7658));
     }
     public void interactiveMode() throws IOException, ClassNotFoundException {
         String command = "";
@@ -37,7 +39,8 @@ public class Client  {
                     case "print_field_ascending_distance":
                     case "max_by_from":
                     case "min_by_distance":
-                        socket.send(new DatagramPacket(command.getBytes(),command.length(),InetAddress.getLocalHost(),7658));
+                        socket.send(new DatagramPacket(command.getBytes(),command.length(),socketAddress));
+                        System.out.println("sss");
                         DatagramPacket dt = new DatagramPacket(b,b.length);
                         socket.receive(dt);
                         ByteArrayInputStream byteArrayInputStream=new ByteArrayInputStream(dt.getData());
