@@ -42,7 +42,7 @@ public class Client  {
                             byte[] sendbuf = byteArrayOutputStream.toByteArray();
                             socket.send(new DatagramPacket(sendbuf, sendbuf.length, socketAddress));
                         }
-                        System.out.println("sss");
+                        System.out.println("ssss");
                         DatagramPacket dt = new DatagramPacket(b,b.length);
                         socket.receive(dt);
                         ByteArrayInputStream byteArrayInputStream=new ByteArrayInputStream(dt.getData());
