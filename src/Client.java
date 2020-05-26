@@ -1,7 +1,4 @@
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 
@@ -39,7 +36,12 @@ public class Client  {
                     case "print_field_ascending_distance":
                     case "max_by_from":
                     case "min_by_distance":
-                        socket.send(new DatagramPacket(command.getBytes(),command.length(),socketAddress));
+                        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); ObjectOutputStream objectOutputStream =new ObjectOutputStream(byteArrayOutputStream)) {
+                            objectOutputStream.writeObject(command);
+                            objectOutputStream.flush();
+                            byte[] sendbuf = byteArrayOutputStream.toByteArray();
+                            socket.send(new DatagramPacket(sendbuf, sendbuf.length, socketAddress));
+                        }
                         System.out.println("sss");
                         DatagramPacket dt = new DatagramPacket(b,b.length);
                         socket.receive(dt);
