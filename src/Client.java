@@ -9,7 +9,7 @@ public class Client  {
     Scanner scanner = new Scanner(System.in);
     SocketAddress socketAddress = new InetSocketAddress(InetAddress.getLocalHost(),7658);
     DatagramSocket socket = new DatagramSocket();
-    byte [] b = new byte[500000000];
+    byte [] b = new byte[2048];
 
     public Client() throws SocketException, UnknownHostException {
     }
@@ -18,9 +18,9 @@ public class Client  {
     public void connection() throws IOException, InterruptedException {
         System.out.println("Подключение...");
         Thread.sleep(1000);
-        System.out.println("Добро пожаловать, вы подключились к серверу"); 
+        System.out.println("Добро пожаловать, вы подключились к серверу");
         String S = "Салам";
-        socket.send(new DatagramPacket(S.getBytes(),S.length(),InetAddress.getLocalHost(),7658));
+        socket.send(new DatagramPacket(S.getBytes(),S.length(),socketAddress));
     }
     public void interactiveMode() throws IOException, ClassNotFoundException {
         String command = "";
