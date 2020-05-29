@@ -1,89 +1,67 @@
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.BindException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.channels.DatagramChannel;
 import java.util.Scanner;
 
-public class Client  {
-    Scanner scanner = new Scanner(System.in);
-    SocketAddress socketAddress = new InetSocketAddress(InetAddress.getLocalHost(),7658);
-    DatagramSocket socket = new DatagramSocket();
-    byte [] b = new byte[2048];
-
-    public Client() throws SocketException, UnknownHostException {
-    }
-
-
-    public void connection() throws IOException, InterruptedException {
-        System.out.println("Подключение...");
-        Thread.sleep(1000);
-        System.out.println("Добро пожаловать, вы подключились к серверу");
-        String S = "Салам";
-        socket.send(new DatagramPacket(S.getBytes(),S.length(),socketAddress));
-    }
-    public void interactiveMode() throws IOException, ClassNotFoundException {
+public class Client extends TextInput {
+    public static void main(String[] args) {
+        System.out.println("hi");
+        class Pokid implements Serializable {
+            Object a,b;
+            public Pokid(Object a){
+                this.a = a;
+            }
+            public Pokid(Object a, Object b){
+                this.a = a;
+                this.b = b;
+            }
+        }
+        Scanner scanner = new Scanner(System.in);
         String command = "";
-        while (!command.equals("exit")) {
-            command = scanner.nextLine();
-            String[] finalUserCommand = command.trim().split(" ");
-            try {
+        try(DatagramChannel datagramChannel = DatagramChannel.open()) {
+            InetSocketAddress socketAddress = new InetSocketAddress(7658);
+            datagramChannel.bind(socketAddress);
+            datagramChannel.configureBlocking(false);
+            Send s = new Send();
+            Receiver receiver = new Receiver();
+            while (!command.equals("exit")) {
+                command = scanner.nextLine();
+                String[] finalUserCommand = command.trim().split(" ");
                 switch (finalUserCommand[0]) {
                     case "":
                         break;
+                    case "remove_lower":
+                    case "add_if_max":
                     case "help":
                     case "info":
                     case "show":
                     case "clear":
+                    case "save":
                     case "remove_head":
                     case "print_field_ascending_distance":
                     case "max_by_from":
                     case "min_by_distance":
-                        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); ObjectOutputStream objectOutputStream =new ObjectOutputStream(byteArrayOutputStream)) {
-                            objectOutputStream.writeObject(command);
-                            objectOutputStream.flush();
-                            byte[] sendbuf = byteArrayOutputStream.toByteArray();
-                            socket.send(new DatagramPacket(sendbuf, sendbuf.length, socketAddress));
-                        }
-                        System.out.println("ssss");
-                        DatagramPacket dt = new DatagramPacket(b,b.length);
-                        socket.receive(dt);
-                        ByteArrayInputStream byteArrayInputStream=new ByteArrayInputStream(dt.getData());
-                        ObjectInputStream fromServer=new ObjectInputStream(byteArrayInputStream);
-                        Object object=fromServer.readObject();
-                        System.out.println(object.toString());
-                        fromServer.close();
+                        Pokid pokid1 = new Pokid(command);
+                        s.send(pokid1, socketAddress, datagramChannel);
+                        receiver.receive(datagramChannel);
+                        break;
+                    case "update":
+                    case "remove_by_id":
+                    case "execute_script file_name":
+                        Pokid pokid2 = new Pokid(finalUserCommand[0], finalUserCommand[1]);
+                        s.send(pokid2, socketAddress, datagramChannel);
+                        receiver.receive(datagramChannel);
                         break;
                     case "add":
-//                        toServer.writeObject(command);
-//                        add();
-//                        System.out.println((String) fromServer.readObject());
+                        TextInput element = new TextInput();
+                        element.readElement();
+                        s.send(element, socketAddress, datagramChannel);
+                        receiver.receive(datagramChannel);
                         break;
-//                case "update":
-//                    implement.update(finalUserCommand[1]);
-//                    break;
-                    case "remove_by_id":
-                    case "remove_greater":
-                    case "remove_any_by_students_count":
-                        try {
-                            Integer.parseInt(finalUserCommand[1]);
-                            socket.send(new DatagramPacket(command.getBytes(),command.length()));
-                            dt = new DatagramPacket(b,b.length);
-                            socket.receive(dt);
-                            byteArrayInputStream=new ByteArrayInputStream(dt.getData());
-                            fromServer=new ObjectInputStream(byteArrayInputStream);
-                            object=fromServer.readObject();
-                            System.out.println(object.toString());
-                        } catch (NumberFormatException e) {
-                            System.out.println("Вы ввели строку или число выходит за пределы int. Введите снова");
-                        }
-                        break;
-//                case "execute_script":
-//                    implement.execute_script(finalUserCommand[1]);
-//                    break;
-//                case "add_if_max":
-//                    implement.add_if_max();
-//                    break;
-//                case "add_if_min":
-//                    implement.add_if_min();
-//                    break;
                     case "exit":
                         System.out.println("Отключение клиента");
                         System.exit(0);
@@ -91,9 +69,10 @@ public class Client  {
                     default:
                         System.out.println("Неизвестная команда. Введите снова");
                 }
-            } catch (ArrayIndexOutOfBoundsException e) {
-                System.out.println("Отсутствует аргумент");
             }
+        } catch (IOException | ClassNotFoundException e ) {
+            System.out.println("sss");
+
         }
     }
 }
