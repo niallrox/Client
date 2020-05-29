@@ -24,7 +24,6 @@ public class Client extends TextInput {
         String command = "";
         try(DatagramChannel datagramChannel = DatagramChannel.open()) {
             SocketAddress socketAddress = new InetSocketAddress(InetAddress.getLocalHost(),3961);
-            datagramChannel.connect(socketAddress);
             datagramChannel.bind(socketAddress);
             datagramChannel.configureBlocking(false);
             Send s = new Send();
