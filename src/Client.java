@@ -23,7 +23,8 @@ public class Client extends TextInput {
         Scanner scanner = new Scanner(System.in);
         String command = "";
         try(DatagramChannel datagramChannel = DatagramChannel.open()) {
-            InetSocketAddress socketAddress = new InetSocketAddress(7658);
+            SocketAddress socketAddress = new InetSocketAddress(InetAddress.getLocalHost(),3961);
+            datagramChannel.connect(socketAddress);
             datagramChannel.bind(socketAddress);
             datagramChannel.configureBlocking(false);
             Send s = new Send();
@@ -71,7 +72,7 @@ public class Client extends TextInput {
                 }
             }
         } catch (IOException | ClassNotFoundException e ) {
-            System.out.println("sss");
+            e.printStackTrace();
 
         }
     }
