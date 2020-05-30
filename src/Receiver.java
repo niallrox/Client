@@ -15,6 +15,7 @@ public class Receiver {
     private InetAddress inetAddress;
     private int port;
 
+    
 
 
     public Object receiveob(byte[] sendbuf) throws IOException,ClassNotFoundException {
