@@ -1,41 +1,28 @@
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.BindException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.nio.channels.DatagramChannel;
 import java.util.Scanner;
 
 public class Client extends TextInput {
     public static void main(String[] args) {
+        byte [] sendbuf= new byte[5000];
         System.out.println("hi");
-        class Pokid implements Serializable {
-            Object a,b;
-            public Pokid(Object a){
-                this.a = a;
-            }
-            public Pokid(Object a, Object b){
-                this.a = a;
-                this.b = b;
-            }
-        }
         Scanner scanner = new Scanner(System.in);
         String command = "";
-        try(DatagramChannel datagramChannel = DatagramChannel.open()) {
-            SocketAddress socketAddress = new InetSocketAddress(InetAddress.getLocalHost(),3961);
-            datagramChannel.bind(socketAddress);
-            datagramChannel.configureBlocking(false);
-            Send s = new Send();
-            Receiver receiver = new Receiver();
+        try {
+            SocketAddress socketAddress = new InetSocketAddress(InetAddress.getLocalHost(),7985);
+            DatagramSocket datagramSocket = new DatagramSocket();
+            Send s = new Send(datagramSocket, socketAddress);
+            Receiver receiver = new Receiver(datagramSocket);
             while (!command.equals("exit")) {
                 command = scanner.nextLine();
                 String[] finalUserCommand = command.trim().split(" ");
                 switch (finalUserCommand[0]) {
                     case "":
                         break;
-                    case "remove_lower":
-                    case "add_if_max":
                     case "help":
                     case "info":
                     case "show":
@@ -45,22 +32,27 @@ public class Client extends TextInput {
                     case "print_field_ascending_distance":
                     case "max_by_from":
                     case "min_by_distance":
-                        Pokid pokid1 = new Pokid(command);
-                        s.send(pokid1, socketAddress, datagramChannel);
-                        receiver.receive(datagramChannel);
+                        s.sendobj(finalUserCommand[0]);
+                        System.out.println(receiver.receiveob(sendbuf));
                         break;
                     case "update":
+                        s.sendobj(command);
+                        TextInput element1 = new TextInput();
+                        Object r1 = element1.readElement();
+                        s.sendobj(r1);
                     case "remove_by_id":
-                    case "execute_script file_name":
-                        Pokid pokid2 = new Pokid(finalUserCommand[0], finalUserCommand[1]);
-                        s.send(pokid2, socketAddress, datagramChannel);
-                        receiver.receive(datagramChannel);
+                    case "execute_script":
+                        s.sendobj(command);
+                        System.out.println(receiver.receiveob(sendbuf));
                         break;
                     case "add":
+                    case "remove_lower":
+                    case "add_if_max":
+                        s.sendobj(finalUserCommand[0]);
                         TextInput element = new TextInput();
-                        element.readElement();
-                        s.send(element, socketAddress, datagramChannel);
-                        receiver.receive(datagramChannel);
+                        Object r = element.readElement();
+                        s.sendobj(r);
+                        System.out.println(receiver.receiveob(sendbuf));
                         break;
                     case "exit":
                         System.out.println("Отключение клиента");

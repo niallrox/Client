@@ -1,6 +1,7 @@
 import java.io.Serializable;
 import java.util.Scanner;
 import java.lang.Math;
+import Foundation.*;
 
 public class TextInput implements Serializable {
     private String currentInput;
@@ -24,7 +25,7 @@ public class TextInput implements Serializable {
     public String getCurrentinput() {
         return currentInput;
     }
-    public Route readElement(){
+    public Object readElement(){
         int id;
         id = (int) (Math.random() * 10);
         TextInput commandd = new TextInput();

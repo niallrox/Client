@@ -1,20 +1,26 @@
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
+import java.net.*;
 
 public class Send {
-    public void send(Object object, SocketAddress address, DatagramChannel datagramChannel) throws IOException {
-        try(ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
-            objectOutputStream.writeObject(object);
-            objectOutputStream.flush();
-            byte[] sendbuf = byteArrayOutputStream.toByteArray();
-            ByteBuffer byteBuffer = ByteBuffer.wrap(sendbuf);
-            datagramChannel.send(byteBuffer, address);
-        }
+    DatagramSocket datagramSocket;
+    SocketAddress inetAddress;
+
+    public Send(DatagramSocket socket,SocketAddress inetAddress) {
+        this.datagramSocket=socket;
+        this.inetAddress=inetAddress;
     }
+
+
+
+    public void sendobj (Object object) throws IOException {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)){
+        objectOutputStream.writeObject(object);
+        objectOutputStream.flush();
+        byte [] sendbuf = byteArrayOutputStream.toByteArray();
+        DatagramPacket datagramPacket =new DatagramPacket(sendbuf,sendbuf.length, inetAddress);
+        datagramSocket.send(datagramPacket);
+    }}
 }

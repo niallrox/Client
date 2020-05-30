@@ -1,3 +1,5 @@
+package Foundation;
+
 import java.io.Serializable;
 
 public class Coordinates implements Serializable {
