@@ -1,41 +1,33 @@
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 
 
 public class Receiver {
-    DatagramSocket datagramSocket;
-    public Receiver(DatagramSocket datagramSocket){
-        this.datagramSocket=datagramSocket;
+    private DatagramChannel datagramChannel;
+
+    public Receiver(DatagramChannel datagramChannel) {
+        this.datagramChannel = datagramChannel;
     }
 
-    private InetAddress inetAddress;
-    private int port;
-
-    
-
-
-    public Object receiveob(byte[] sendbuf) throws IOException,ClassNotFoundException {
-        DatagramPacket datagramPacket = new DatagramPacket(sendbuf,sendbuf.length);
-        datagramSocket.receive(datagramPacket);
-        inetAddress=datagramPacket.getAddress();
-        port=datagramPacket.getPort();
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(datagramPacket.getData());
-        ObjectInputStream fromServer = new ObjectInputStream(byteArrayInputStream);
-        Object object =fromServer.readObject();
-        byteArrayInputStream.close();
-        fromServer.close();
-        return object;
+    public Object receiveob(byte[] codedPacket) {
+        ByteBuffer buffer = ByteBuffer.wrap(codedPacket);
+        buffer.clear();
+        try {
+            SocketAddress address;
+            do {
+                address = datagramChannel.receive(buffer);
+            } while (address == null);
+            ByteArrayInputStream byteArrayStream = new ByteArrayInputStream(codedPacket);
+            ObjectInputStream inputStream = new ObjectInputStream(byteArrayStream);
+            return inputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    public InetAddress getInetAddress() {
-        return inetAddress;
-    }
-
-    public int getPort() {
-        return port;
-    }
 }
