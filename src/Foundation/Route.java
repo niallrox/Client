@@ -23,6 +23,7 @@ public class Route implements Comparable<Route>, Serializable {
         this.distance = distance;
     }
 
+
     public Long getId() {
         return id;
     }
