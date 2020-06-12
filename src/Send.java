@@ -22,8 +22,8 @@ public class Send {
             byte[] sendbuf = byteArrayStream.toByteArray();
             ByteBuffer buffer = ByteBuffer.wrap(sendbuf);
             buffer.clear();
-            int available = 2049;
-            while (available > 2048) {
+            int available = -1;
+            while (available > 0) {
                  available=datagramChannel.send(buffer, address);
             }
         }
