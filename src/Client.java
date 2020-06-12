@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.DatagramChannel;
@@ -9,12 +8,16 @@ public class Client extends TextInput {
     public static void main(String[] args) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("\nВыход...")));
         byte[] sendbuf = new byte[5000];
-        System.out.println("hi");
+        System.out.println("hi, type port");
         Scanner scanner = new Scanner(System.in);
+        int port = Integer.parseInt(scanner.nextLine());
+        System.out.println("type host");
+        String host = String.valueOf(scanner.nextLine());
+        System.out.println("Добро пожаловать, напишите help");
         String command = "";
         try (DatagramChannel datagramChannel = DatagramChannel.open()) {
             datagramChannel.configureBlocking(false);
-            SocketAddress socketAddress = new InetSocketAddress(InetAddress.getLocalHost(), 7985);
+            SocketAddress socketAddress = new InetSocketAddress(host, port);
             Send s = new Send(datagramChannel);
             Receiver receiver = new Receiver(datagramChannel);
             while (!command.equals("exit")) {
