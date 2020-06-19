@@ -1,7 +1,6 @@
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.net.PortUnreachableException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -23,7 +22,7 @@ public class Receiver {
             do {
                 address = datagramChannel.receive(buffer);
                 count++;
-                if (count==100000L){
+                if (count==400000L){
                     System.out.println("Порт недоступен");
                     System.exit(1);
                 }
