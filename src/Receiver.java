@@ -19,11 +19,11 @@ public class Receiver {
         buffer.clear();
         try {
             SocketAddress address;
-            int count = 0;
+            long count = 0;
             do {
                 address = datagramChannel.receive(buffer);
                 count++;
-                if (count==10000){
+                if (count==100000L){
                     System.out.println("Порт недоступен");
                     System.exit(1);
                 }

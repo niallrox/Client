@@ -6,6 +6,7 @@ public class RouteIKEA {
     long id = 0;
     TextInput commandd = new TextInput();
     Route route;
+    Location from = new Location((float) 0.0,0.0,0,null);
 
     public String readString(String type){
         String smth;
@@ -16,20 +17,46 @@ public class RouteIKEA {
         } while (smth.equals(""));
         return smth;
     }
+    public void nullLocation(){
+        System.out.println("Хочешь локацию null?");
+        String com = "";
+        while(!(com.equals("Да")) || !(com.equals("Нет"))) {
+            com = commandd.getNextInput();
+            switch (com) {
+                case "Да":
+                    from = null;
+                    return;
+                case "Нет":
+                    System.out.println("Ну тогда вводи");
+                    return;
+                default:
+                    System.out.println("Введите 'Да' или 'Нет', пж");
+                    break;
+            }
+        }
+    }
     public Integer readInteger(String type,Integer odz){
         String introduced;
         Integer general = null;
         do {
             commandd.output("Введите " + type);
             introduced = commandd.getNextInput().trim();
-            try {
-                general = Integer.parseInt(introduced);
-                if (general < odz) {
-                    general = null;
-                    System.out.println("Поле должно быть больше " + odz);
+            String a[] = type.split("");
+            if(!(a[0].equals("Location") && a[1].equals("from"))) {
+                try {
+                    general = Integer.parseInt(introduced);
+                    if (general < odz) {
+                        general = null;
+                        System.out.println("Поле должно быть больше " + odz);
+                    }
+                } catch (NumberFormatException n) {
+                    System.out.println("Это не число");
                 }
-            } catch (NumberFormatException n) {
-                System.out.println("Это не число");
+            }else{
+                if (introduced.equals("")) {
+                    general = null;
+                    return general;
+                }
             }
         } while (general == null);
         return general;
@@ -107,16 +134,20 @@ public class RouteIKEA {
         String name = readString("имя:");
         Integer coordiantesX = readInteger("Coordinates x:",-310);
         Integer coordinatesY = readInteger("Coordinates y:",-921);
-        Float locationFromX = readFloat("Location from x: ");
-        Double locationFromY = readDouble("Location from y:");
-        Integer locationFromZ = readInteger("Location from z:", -623);
-        String locationFromName = readString("Location from имя локации:");
+        nullLocation();
+        if(!(from == null)){
+            Float locationFromX = readFloat("Location from x: ");
+            Double locationFromY = readDouble("Location from y:");
+            Integer locationFromZ = readInteger("Location from z:", -623);
+            String locationFromName = readString("Location from имя локации:");
+            from = new Location(locationFromX, locationFromY, locationFromZ, locationFromName);
+        }
         Float locationToX = readFloat("Location to x:");
         Double locationToY = readDouble("Location to y:");
         Integer locationToZ = readInteger("Location to z:", -623);
         String locationToName = readString("Location to имя локации:");
         Long distance = readDistance();
-        route = new Route(id, name, new Coordinates(coordiantesX, coordinatesY), new Location(locationFromX, locationFromY, locationFromZ, locationFromName), new Location(locationToX, locationToY, locationToZ, locationToName), distance);
+        route = new Route(id, name, new Coordinates(coordiantesX, coordinatesY),from , new Location(locationToX, locationToY, locationToZ, locationToName), distance);
         return route;
     }
 }

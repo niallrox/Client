@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -50,9 +51,17 @@ public class Client extends TextInput {
                         s.sendobj(command, socketAddress);
                         System.out.println(receiver.receiveob(sendbuf));
                     case "execute_script":
+                        StringBuilder g= new StringBuilder();
+                        try(FileReader reader = new FileReader(finalUserCommand[1]))
+                        {
+                            int c;
+                            while((c=reader.read())!=-1){
+                                g.append((char)c);
+                            }
+                        }
                         s.sendobj(command, socketAddress);
-                        File file = new File(finalUserCommand[1]);
-                        s.sendobj(file, socketAddress);
+                        System.out.println(g);
+                        s.sendobj(g.toString(), socketAddress);
                         System.out.println(receiver.receiveob(sendbuf));
                         break;
                     case "add":
