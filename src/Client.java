@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -46,8 +47,12 @@ public class Client extends TextInput {
                         System.out.println(receiver.receiveob(sendbuf));
                         break;
                     case "remove_by_id":
+                        s.sendobj(command, socketAddress);
+                        System.out.println(receiver.receiveob(sendbuf));
                     case "execute_script":
                         s.sendobj(command, socketAddress);
+                        File file = new File(finalUserCommand[1]);
+                        s.sendobj(file, socketAddress);
                         System.out.println(receiver.receiveob(sendbuf));
                         break;
                     case "add":
