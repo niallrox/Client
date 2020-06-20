@@ -1,13 +1,16 @@
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.UnresolvedAddressException;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class Client extends TextInput {
     public static void main(String[] args) {
+      try {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("\nВыход...")));
         byte[] sendbuf = new byte[5000];
         System.out.println("hi, type port");
@@ -59,6 +62,8 @@ public class Client extends TextInput {
                             while((c=reader.read())!=-1){
                                 g.append((char)c);
                             }
+                        } catch (FileNotFoundException e){
+                            System.out.println("Файла по указанному пути не существует");
                         }
                         s.sendobj(command, socketAddress);
                         System.out.println(g);
@@ -82,9 +87,14 @@ public class Client extends TextInput {
                         System.out.println("Неизвестная команда. Введите снова");
                 }
             }
-        } catch (IOException e) {
+        }} catch (IOException e) {
             e.printStackTrace();
-
-        }
+        } catch (NumberFormatException e){
+          System.out.println("Введите число");
+      } catch (NoSuchElementException e){
+      }
+      catch (UnresolvedAddressException e){
+          System.out.println("Не тот хост");
+      }
     }
 }
