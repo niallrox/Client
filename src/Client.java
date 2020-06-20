@@ -20,6 +20,7 @@ public class Client extends TextInput {
         try (DatagramChannel datagramChannel = DatagramChannel.open()) {
             datagramChannel.configureBlocking(false);
             SocketAddress socketAddress = new InetSocketAddress(host, port);
+            datagramChannel.connect(socketAddress);
             Send s = new Send(datagramChannel);
             Receiver receiver = new Receiver(datagramChannel);
             while (!command.equals("exit")) {
