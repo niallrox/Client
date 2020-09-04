@@ -12,8 +12,9 @@ public class Route implements Comparable<Route>, Serializable {
     private Location from; //Поле может быть null
     private Location to; //Поле не может быть null
     private Long distance; //Поле не может быть null, Значение поля должно быть больше 1
+    private String login;
 
-    public Route(long id, String name, Coordinates coordinates, Location from, Location to, Long distance) {
+    public Route(long id, String name, Coordinates coordinates, Location from, Location to, Long distance, String login) {
         this.id = id;
         this.name = name;
         this.coordinates = coordinates;
@@ -21,8 +22,8 @@ public class Route implements Comparable<Route>, Serializable {
         this.from = from;
         this.to = to;
         this.distance = distance;
+        this.login = login;
     }
-
 
     public Long getId() {
         return id;
@@ -54,10 +55,13 @@ public class Route implements Comparable<Route>, Serializable {
                 ", distance=" + distance +
                 '}';
     }
+    public Route(){}
 
-    public Coordinates getCoordinates() {
-        return coordinates;
-    }
+    public String getLogin() { return login; }
+
+    public void setLogin(String login) { this.login = login; }
+
+    public Coordinates getCoordinates() { return coordinates; }
 
     public LocalDate getCreationDate() {
         return creationDate;
@@ -77,5 +81,13 @@ public class Route implements Comparable<Route>, Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public Integer getFromSum(){
+        if(!(getFrom() == null)) {
+            Integer sum = (int) (from.getX() + from.getY() + from.getZ());
+            return sum;
+        }
+        return 0;
     }
 }
