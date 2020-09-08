@@ -12,7 +12,7 @@ import java.nio.channels.DatagramChannel;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class ClientWork {
+public class Manager {
     private Scanner scanner = new Scanner(System.in);
     public boolean access;
     private ArrayList<File> scriptRepeat = new ArrayList<>();
@@ -21,16 +21,7 @@ public class ClientWork {
     private DatagramChannel datagramChannel;
     private byte [] buf = new byte[4096];
 
-    /**
-     * Основной метод клиента (отправляет необходимый объект на сервер)
-     *
-     * @param socket
-     * @param command
-     * @param login
-     * @param password
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
+
     public void work(SocketAddress socket, String command, String login, String password) throws IOException, ClassNotFoundException {
         if (command.equals("reg")) {
             Command request = new Command("reg", login, password);
@@ -49,16 +40,7 @@ public class ClientWork {
         }
     }
 
-    /**
-     * Метод выбирает и отправляет команду на сервер
-     *
-     * @param socket
-     * @param command
-     * @param login
-     * @param password
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
+
     public void choose(SocketAddress socket, String command, String login, String password) throws IOException, ClassNotFoundException {
         String[] finalUserCommand = command.trim().split(" ");
         if (finalUserCommand.length == 1) {
@@ -147,13 +129,7 @@ public class ClientWork {
         }
     }
 
-    /**
-     * Метод отправляет команду на сервер
-     *
-     * @param socketAddress
-     * @param answer
-     * @throws IOException
-     */
+
     public void sendCommand(SocketAddress socketAddress, Command answer) throws IOException {
         try (ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
              ObjectOutputStream outputStream = new ObjectOutputStream(byteArrayStream)) {
@@ -166,13 +142,7 @@ public class ClientWork {
         }
     }
 
-    /**
-     * Метод получает результат от сервера
-     *
-     * @param codedPacket
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
+
     public void getAnswer(byte [] codedPacket ) throws IOException, ClassNotFoundException {
         String answer;
         ByteBuffer buffer = ByteBuffer.wrap(codedPacket);
@@ -204,12 +174,6 @@ public class ClientWork {
         }
     }
 
-    /**
-     * Метод проверяет занчение int для add
-     *
-     * @param arr
-     * @return
-     */
     long id = 0;
     TextInput commandd = new TextInput();
     Route route;

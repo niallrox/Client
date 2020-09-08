@@ -6,15 +6,13 @@ import java.nio.channels.DatagramChannel;
 import java.util.Scanner;
 
 public class Connection {
-    private ClientWork client = new ClientWork();
+    private Manager client = new Manager();
     private Scanner scanner = new Scanner(System.in);
     private String login;
     private String password;
     private byte [] buf =new  byte [4096];
 
-    /**
-     * Метод реализует соединение между клиентом и сервером
-     */
+
     public void connection() throws ClassNotFoundException {
         while (true) {
             try {
@@ -64,9 +62,7 @@ public class Connection {
         }
     }
 
-    /**
-     * Метод отправляет логин и пароль для регистрации или авторизации
-     */
+
     public void sign(SocketAddress socket) throws IOException, ClassNotFoundException {
         String command;
         while (true) {
@@ -87,9 +83,7 @@ public class Connection {
         client.work(socket, command, login, password);
     }
 
-    /**
-     * Метод просит пользователя ввести логин и пароль
-     */
+
     private void checkLoginPassword() {
         while (true) {
             System.out.println("Введите логин");
