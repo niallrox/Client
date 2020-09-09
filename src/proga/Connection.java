@@ -69,7 +69,7 @@ public class Connection {
             System.out.println("Вы зарегестрированы?. Введите (yes) или (no)");
             String regist = scanner.nextLine();
             if (regist.equals("no")) {
-                System.out.println("Тогда зарегестрируемся.");
+                System.out.println("Тогда зарегистрируемся.");
                 checkLoginPassword();
                 command = "reg";
                 break;
