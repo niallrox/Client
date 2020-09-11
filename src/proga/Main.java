@@ -16,7 +16,8 @@ public class Main {
         } catch (NoSuchElementException e) {
             // для ctrl+D
         } catch (NullPointerException e) {
-            System.out.println("Ошибка соединения");
+           // System.out.println("Ошибка соединения");
+            e.printStackTrace();
         }
     }
 }

@@ -16,7 +16,6 @@ public class Connection {
     public void connection() throws ClassNotFoundException {
         while (true) {
             try {
-
                 System.out.println("Введите порт");
                 int port = Integer.parseInt(scanner.nextLine());
                 System.out.println("Введите хост");
@@ -27,9 +26,8 @@ public class Connection {
                     SocketAddress socketAddress = new InetSocketAddress(host, port);
                     datagramChannel.connect(socketAddress);
                     System.out.println("Соединение установленно");
-                    client.getAnswer(buf);
                     while (true) {
-                        sign(socketAddress);
+                        sign(datagramChannel, socketAddress);
                     }
                 }
             } catch (SocketTimeoutException e) {
@@ -63,7 +61,7 @@ public class Connection {
     }
 
 
-    public void sign(SocketAddress socket) throws IOException, ClassNotFoundException {
+    public void sign(DatagramChannel datagramChannel, SocketAddress socket) throws IOException, ClassNotFoundException {
         String command;
         while (true) {
             System.out.println("Вы зарегестрированы?. Введите (yes) или (no)");
@@ -80,7 +78,7 @@ public class Connection {
                 break;
             }
         }
-        client.work(socket, command, login, password);
+        client.work(datagramChannel, socket, command, login, password);
     }
 
 

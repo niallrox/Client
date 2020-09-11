@@ -10,6 +10,7 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Manager {
@@ -22,26 +23,26 @@ public class Manager {
     private byte [] buf = new byte[4096];
 
 
-    public void work(SocketAddress socket, String command, String login, String password) throws IOException, ClassNotFoundException {
+    public void work(DatagramChannel datagramChannel, SocketAddress socket, String command, String login, String password) throws IOException, ClassNotFoundException {
         if (command.equals("reg")) {
             Command request = new Command("reg", login, password);
-            sendCommand(socket, request);
-            getAnswer(buf);
+            sendCommand(datagramChannel, socket, request);
+            getAnswer(datagramChannel,buf);
         } else if (command.equals("sign")) {
             Command request = new Command("sign", login, password);
-            sendCommand(socket, request);
-            getAnswer(buf);
+            sendCommand(datagramChannel, socket, request);
+            getAnswer(datagramChannel,buf);
         }
         if (access) {
             while (true) {
                 command = scanner.nextLine();
-                choose(socket, command, login, password);
+                choose(datagramChannel, socket, command, login, password);
             }
         }
     }
 
 
-    public void choose(SocketAddress socket, String command, String login, String password) throws IOException, ClassNotFoundException {
+    public void choose(DatagramChannel datagramChannel, SocketAddress socket, String command, String login, String password) throws IOException, ClassNotFoundException {
         String[] finalUserCommand = command.trim().split(" ");
         if (finalUserCommand.length == 1) {
             switch (finalUserCommand[0]) {
@@ -56,16 +57,16 @@ public class Manager {
                 case "max_by_from":
                 case "remove_head":    {
                     Command request = new Command(finalUserCommand[0], login, password);
-                    sendCommand(socket, request);
-                    getAnswer(buf);
+                    sendCommand(datagramChannel, socket, request);
+                    getAnswer(datagramChannel,buf);
                 }
                 break;
                 case "add_if_max":
                 case "add":
                 case "remove_lower": {
                     Command request = new Command(finalUserCommand[0], add(), login, password);
-                    sendCommand(socket, request);
-                    getAnswer(buf);
+                    sendCommand(datagramChannel, socket, request);
+                    getAnswer(datagramChannel,buf);
                 }
                 break;
                 case "exit":
@@ -79,8 +80,8 @@ public class Manager {
                     try {
                         Integer.parseInt(finalUserCommand[1]);
                         Command request = new Command(finalUserCommand[0], finalUserCommand[1], login, password);
-                        sendCommand(socket, request);
-                        getAnswer(buf);
+                        sendCommand(datagramChannel, socket, request);
+                        getAnswer(datagramChannel,buf);
                     } catch (NumberFormatException e) {
                         System.out.println("Вы ввели строку или число выходит за пределы int. Введите снова");
                     }
@@ -89,8 +90,8 @@ public class Manager {
                     try {
                         Integer.parseInt(finalUserCommand[1]);
                         Command request = new Command(finalUserCommand[0], finalUserCommand[1], add(), login, password);
-                        sendCommand(socket, request);
-                        getAnswer(buf);
+                        sendCommand(datagramChannel, socket, request);
+                        getAnswer(datagramChannel,buf);
                     } catch (NumberFormatException e) {
                         System.out.println("Вы ввели строку или число выходит за пределы int. Введите снова");
                     }
@@ -111,7 +112,7 @@ public class Manager {
                             commandReader = new BufferedReader(new FileReader(file));
                             String line = commandReader.readLine();
                             while (line != null) {
-                                choose(socket, line, login, password);
+                                choose(datagramChannel, socket, line, login, password);
                                 System.out.println();
                                 line = commandReader.readLine();
                             }
@@ -130,7 +131,7 @@ public class Manager {
     }
 
 
-    public void sendCommand(SocketAddress socketAddress, Command answer) throws IOException {
+    public void sendCommand(DatagramChannel datagramChannel, SocketAddress socketAddress, Command answer) throws IOException {
         try (ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
              ObjectOutputStream outputStream = new ObjectOutputStream(byteArrayStream)) {
             outputStream.writeObject(answer);
@@ -143,16 +144,17 @@ public class Manager {
     }
 
 
-    public void getAnswer(byte [] codedPacket ) throws IOException, ClassNotFoundException {
+    public void getAnswer(DatagramChannel datagramChannel, byte [] codedPacket) throws IOException, ClassNotFoundException {
         String answer;
         ByteBuffer buffer = ByteBuffer.wrap(codedPacket);
         buffer.clear();
+        System.out.println("ssss");
         try {
             SocketAddress address;
             do {
                 address = datagramChannel.receive(buffer);
             } while (address == null);
-
+            System.out.println("sssrwqrqrrqw");
             ByteArrayInputStream byteArrayStream = new ByteArrayInputStream(codedPacket);
         ObjectInputStream fromServer = new ObjectInputStream(byteArrayStream);
         answer = (String) fromServer.readObject();
