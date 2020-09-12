@@ -5,6 +5,7 @@ import Foundation.Location;
 import Foundation.Route;
 
 import java.io.*;
+import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -27,11 +28,11 @@ public class Manager {
         if (command.equals("reg")) {
             Command request = new Command("reg", login, password);
             sendCommand(datagramChannel, socket, request);
-            getAnswer(datagramChannel,buf);
+            getAnswer(datagramChannel,socket,buf);
         } else if (command.equals("sign")) {
             Command request = new Command("sign", login, password);
             sendCommand(datagramChannel, socket, request);
-            getAnswer(datagramChannel,buf);
+            getAnswer(datagramChannel,socket,buf);
         }
         if (access) {
             while (true) {
@@ -58,7 +59,7 @@ public class Manager {
                 case "remove_head":    {
                     Command request = new Command(finalUserCommand[0], login, password);
                     sendCommand(datagramChannel, socket, request);
-                    getAnswer(datagramChannel,buf);
+                    getAnswer(datagramChannel,socket,buf);
                 }
                 break;
                 case "add_if_max":
@@ -66,7 +67,7 @@ public class Manager {
                 case "remove_lower": {
                     Command request = new Command(finalUserCommand[0], add(), login, password);
                     sendCommand(datagramChannel, socket, request);
-                    getAnswer(datagramChannel,buf);
+                    getAnswer(datagramChannel,socket,buf);
                 }
                 break;
                 case "exit":
@@ -81,7 +82,7 @@ public class Manager {
                         Integer.parseInt(finalUserCommand[1]);
                         Command request = new Command(finalUserCommand[0], finalUserCommand[1], login, password);
                         sendCommand(datagramChannel, socket, request);
-                        getAnswer(datagramChannel,buf);
+                        getAnswer(datagramChannel,socket,buf);
                     } catch (NumberFormatException e) {
                         System.out.println("Вы ввели строку или число выходит за пределы int. Введите снова");
                     }
@@ -91,7 +92,7 @@ public class Manager {
                         Integer.parseInt(finalUserCommand[1]);
                         Command request = new Command(finalUserCommand[0], finalUserCommand[1], add(), login, password);
                         sendCommand(datagramChannel, socket, request);
-                        getAnswer(datagramChannel,buf);
+                        getAnswer(datagramChannel,socket,buf);
                     } catch (NumberFormatException e) {
                         System.out.println("Вы ввели строку или число выходит за пределы int. Введите снова");
                     }
@@ -144,16 +145,14 @@ public class Manager {
     }
 
 
-    public void getAnswer(DatagramChannel datagramChannel, byte [] codedPacket) throws IOException, ClassNotFoundException {
+    public void getAnswer(DatagramChannel datagramChannel, SocketAddress socketAddress , byte [] codedPacket) throws IOException, ClassNotFoundException {
         String answer;
         ByteBuffer buffer = ByteBuffer.wrap(codedPacket);
         buffer.clear();
         System.out.println("ssss");
-        try {
-            SocketAddress address;
-            do {
-                address = datagramChannel.receive(buffer);
-            } while (address == null);
+        try { do {
+          socketAddress =  datagramChannel.receive(buffer);
+        } while (socketAddress == null);
             System.out.println("sssrwqrqrrqw");
             ByteArrayInputStream byteArrayStream = new ByteArrayInputStream(codedPacket);
         ObjectInputStream fromServer = new ObjectInputStream(byteArrayStream);
