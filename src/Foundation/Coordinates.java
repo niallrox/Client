@@ -1,7 +1,7 @@
 package Foundation;
 
 import java.io.Serializable;
-
+import java.lang.Math;
 public class Coordinates implements Serializable {
     private Integer x; //Значение поля должно быть больше -310, Поле не может быть null
     private int y; //Значение поля должно быть больше -921

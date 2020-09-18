@@ -38,7 +38,10 @@ public class Connection {
                 System.out.println("Порт не найден или недоступен");
             } catch (UnknownHostException e) {
                 System.out.println("Хост введен неверно");
-            } catch (IllegalArgumentException e) {
+            } catch (PortUnreachableException e){
+                System.out.println("Подключится к этому порту нельзя");
+            }
+            catch (IllegalArgumentException e) {
                 System.out.println("Порт должен принимать значения от 1 до 65535");
             } catch (IOException e) {
                 client.access = false;
