@@ -1,9 +1,9 @@
 package proga;
 
-import Foundation.Coordinates;
 import Foundation.Location;
 import Foundation.Route;
 
+import javax.swing.*;
 import java.io.*;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -24,23 +24,19 @@ public class Manager {
     public void work(DatagramChannel datagramChannel, SocketAddress socket, String command, String login, String password) throws IOException, ClassNotFoundException {
         if (command.equals("reg")) {
             Command request = new Command("reg", login, password);
-            sendCommand(datagramChannel, socket, request);
-            getAnswer(datagramChannel, socket, buf);
+//            sendCommand(datagramChannel, socket, request);
+//            getAnswer(datagramChannel, socket, buf);
         } else if (command.equals("sign")) {
             Command request = new Command("sign", login, password);
             sendCommand(datagramChannel, socket, request);
             getAnswer(datagramChannel, socket, buf);
         }
-        if (access) {
-            while (true) {
-                command = scanner.nextLine();
-                choose(datagramChannel, socket, command, login, password);
-            }
-        }
+        CommandFrame commandFrame = new CommandFrame(datagramChannel, socket, login, password);
+        commandFrame.run();
     }
 
 
-    public void choose(DatagramChannel datagramChannel, SocketAddress socket, String command, String login, String password) throws IOException, ClassNotFoundException {
+    public void choose(DatagramChannel datagramChannel, SocketAddress socket, String command, String login, String password, JFrame jFrame) throws IOException, ClassNotFoundException {
         String[] finalUserCommand = command.trim().split(" ");
         if (finalUserCommand.length == 1) {
             switch (finalUserCommand[0]) {
@@ -62,11 +58,21 @@ public class Manager {
                 case "add_if_max":
                 case "add":
                 case "remove_lower": {
-                    Command request = new Command(finalUserCommand[0], add(), login, password);
+                    Command request = new Command(finalUserCommand[0], getRoute(), login, password);
                     sendCommand(datagramChannel, socket, request);
                     getAnswer(datagramChannel, socket, buf);
                 }
-                break;
+                case "update":
+                    try {
+                        String id = JOptionPane.showInputDialog(jFrame, "Введите id");
+                        jFrame.setVisible(false);
+                        Command request = new Command(finalUserCommand[0], id, getRoute(), login, password);
+                        sendCommand(datagramChannel, socket, request);
+                        getAnswer(datagramChannel, socket, buf);
+                    } catch (NumberFormatException e) {
+                        System.out.println("Вы ввели строку или число выходит за пределы int. Введите снова");
+                    }
+                    break;
                 case "exit":
                     System.exit(0);
                 default:
@@ -78,16 +84,6 @@ public class Manager {
                     try {
                         Integer.parseInt(finalUserCommand[1]);
                         Command request = new Command(finalUserCommand[0], finalUserCommand[1], login, password);
-                        sendCommand(datagramChannel, socket, request);
-                        getAnswer(datagramChannel, socket, buf);
-                    } catch (NumberFormatException e) {
-                        System.out.println("Вы ввели строку или число выходит за пределы int. Введите снова");
-                    }
-                    break;
-                case "update":
-                    try {
-                        Integer.parseInt(finalUserCommand[1]);
-                        Command request = new Command(finalUserCommand[0], finalUserCommand[1], add(), login, password);
                         sendCommand(datagramChannel, socket, request);
                         getAnswer(datagramChannel, socket, buf);
                     } catch (NumberFormatException e) {
@@ -110,7 +106,7 @@ public class Manager {
                             commandReader = new BufferedReader(new FileReader(file));
                             String line = commandReader.readLine();
                             while (line != null) {
-                                choose(datagramChannel, socket, line, login, password);
+                                choose(datagramChannel, socket, line, login, password, jFrame);
                                 System.out.println();
                                 line = commandReader.readLine();
                             }
@@ -284,20 +280,11 @@ public class Manager {
         return distance1;
     }
 
-    public Route add() {
-        String name = readString("имя:");
-        Integer coordiantesX = readInteger("Coordinates x:", -310);
-        Integer coordinatesY = readInteger("Coordinates y:", -921);
-        Float locationFromX = readFloat("Location from x: ");
-        Double locationFromY = readDouble("Location from y:");
-        Integer locationFromZ = readInteger("Location from z:", -623);
-        String locationFromName = readString("Location from имя локации:");
-        Float locationToX = readFloat("Location to x:");
-        Double locationToY = readDouble("Location to y:");
-        Integer locationToZ = readInteger("Location to z:", -623);
-        String locationToName = readString("Location to имя локации:");
-        Long distance = readDistance();
-        route = new Route(id, name, new Coordinates(coordiantesX, coordinatesY), new Location(locationFromX, locationFromY, locationFromZ, locationFromName), new Location(locationToX, locationToY, locationToZ, locationToName), distance, "");
+    public void setRoute(Route route) {
+        this.route = route;
+    }
+
+    public Route getRoute() {
         return route;
     }
 }

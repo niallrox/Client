@@ -1,6 +1,7 @@
 package Foundation;
 
 import java.io.Serializable;
+import java.util.Scanner;
 
 public class Location implements Serializable {
     private float x;
@@ -30,6 +31,7 @@ public class Location implements Serializable {
     public int getZ() {
         return z;
     }
+
 
     @Override
     public String toString() {
