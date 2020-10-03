@@ -32,6 +32,8 @@ public class AuthorizationListener implements ActionListener {
             authorizationFrame.setVisible(false);
             manager.work(datagramChannel,socketAddress,"sign",login.getText(),password.getText(),output);
         } catch (IOException | ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(authorizationFrame,"Проверьте, правильно ли вы подключаетесь");
+            System.exit(0);
             ex.printStackTrace();
         }
     }

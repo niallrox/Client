@@ -6,8 +6,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import java.net.*;
 import java.nio.channels.DatagramChannel;
 
 public class ConnectionListener implements ActionListener {
@@ -28,12 +27,14 @@ public class ConnectionListener implements ActionListener {
             datagramChannel.configureBlocking(true);
             SocketAddress socketAddress = new InetSocketAddress(host.getText(), Integer.parseInt(port.getText()));
             datagramChannel.connect(socketAddress);
-            System.out.println("Соединение установлено хост: " + host.getText() + "порт: " + port.getText());
             connectFrame.setVisible(false);
             AuthorizationFrame authFrame = new AuthorizationFrame("Регистрация/Вход", datagramChannel, socketAddress);
             authFrame.run();
         } catch (IOException ex) {
+            JOptionPane.showMessageDialog(connectFrame,"Проверьте, правильно ли вы подключаетесь ");
             ex.printStackTrace();
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(connectFrame,"Нормальный порт и хост введите пожалуйста");
         }
     }
 }

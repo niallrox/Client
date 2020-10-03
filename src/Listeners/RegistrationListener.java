@@ -31,6 +31,8 @@ public class RegistrationListener implements ActionListener {
             manager.work(datagramChannel,socketAddress,"reg",login.getText(),password.getText(),output);
             authorizationFrame.setVisible(false);
         } catch (IOException | ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(authorizationFrame,"Проверьте, правильно ли вы подключаетесь");
+            System.exit(0);
             ex.printStackTrace();
         }
     }

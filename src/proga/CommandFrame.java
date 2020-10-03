@@ -128,7 +128,7 @@ public class CommandFrame extends JFrame implements Runnable {
             choseLanguage(languages);
             String[] commandsLanguage = {getResourceBundle().getString("add"), getResourceBundle().getString("addIfMax"), getResourceBundle().getString("clear"), getResourceBundle().getString("help"),
                     getResourceBundle().getString("info"), getResourceBundle().getString("maxByFrom"), getResourceBundle().getString("minByDistance"), getResourceBundle().getString("printFieldAscendingDistance"),
-                    getResourceBundle().getString("removeHead"), getResourceBundle().getString("removeId"), getResourceBundle().getString("removeLower"),getResourceBundle().getString("update") + getResourceBundle().getString("executeScript")  };
+                    getResourceBundle().getString("removeHead"), getResourceBundle().getString("removeId"), getResourceBundle().getString("removeLower"),getResourceBundle().getString("update"),getResourceBundle().getString("executeScript")};
             for (int i = 0; i < commandsLanguage.length; i++) {
                 ((JButton) jpanelCommands.getComponent(i)).setText(commandsLanguage[i]);
             }

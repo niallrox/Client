@@ -32,8 +32,8 @@ public class Manager {
             getAnswer(datagramChannel, socket, buf, output, "reg");
         } else if (command.equals("sign")) {
             Command request = new Command("sign", login, password);
-            sendCommand(datagramChannel, socket, request);
-            getAnswer(datagramChannel, socket, buf, output, "sign");
+//            sendCommand(datagramChannel, socket, request);
+//            getAnswer(datagramChannel, socket, buf, output, "sign");
             CommandFrame commandFrame = new CommandFrame(datagramChannel, socket, login, password);
             commandFrame.createFrame();
         }
@@ -43,7 +43,7 @@ public class Manager {
     public void choose(DatagramChannel datagramChannel, SocketAddress socket, String command, String login, String password, JFrame jFrame, JTextArea output, DefaultTableModel defaultTableModel) throws IOException, ClassNotFoundException {
         StringBuilder stringBuilder = new StringBuilder();
         switch (command) {
-            case "": 
+            case "":
                 break;
             case "clear":
             case "help":
