@@ -26,6 +26,7 @@ public class RouteSpawner {
     public int yDefault;
     public int xDefault;
     public Color color;
+    private GeneralPath path;
 
 
 
@@ -57,7 +58,7 @@ public class RouteSpawner {
 
     public void paintRoute(Graphics2D g) {
         circle = new Circle(startX, startY, size, size);
-        GeneralPath path = new GeneralPath();
+        path = new GeneralPath();
         color = g.getColor();
         g.setColor(color);
         path.append(circle, true);
@@ -137,6 +138,10 @@ public class RouteSpawner {
 
     public String getCreationDate() {
         return creationDate;
+    }
+
+    public GeneralPath getPath() {
+        return path;
     }
 
     public int getSize() {

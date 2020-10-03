@@ -102,6 +102,7 @@ public class Manager {
                     } else {
                         scriptRepeat.add(file);
                         try {
+                            scriptOn=true;
                             commandReader = new BufferedReader(new FileReader(file));
                             String line = commandReader.readLine();
                             while (line != null) {
