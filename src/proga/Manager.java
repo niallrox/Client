@@ -1,9 +1,9 @@
 package proga;
 
-import Foundation.Location;
 import Foundation.Route;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.io.*;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -19,108 +19,111 @@ public class Manager {
     public boolean scriptOn;
     private DatagramChannel datagramChannel;
     private byte[] buf = new byte[4096];
+    private Route route;
+    private JTextArea output;
+    private String element;
+    private String answer;
 
 
-    public void work(DatagramChannel datagramChannel, SocketAddress socket, String command, String login, String password) throws IOException, ClassNotFoundException {
+    public void work(DatagramChannel datagramChannel, SocketAddress socket, String command, String login, String password, JTextArea output) throws IOException, ClassNotFoundException {
         if (command.equals("reg")) {
             Command request = new Command("reg", login, password);
-//            sendCommand(datagramChannel, socket, request);
-//            getAnswer(datagramChannel, socket, buf);
+            sendCommand(datagramChannel, socket, request);
+            getAnswer(datagramChannel, socket, buf, output, "reg");
         } else if (command.equals("sign")) {
             Command request = new Command("sign", login, password);
             sendCommand(datagramChannel, socket, request);
-            getAnswer(datagramChannel, socket, buf);
+            getAnswer(datagramChannel, socket, buf, output, "sign");
+            CommandFrame commandFrame = new CommandFrame(datagramChannel, socket, login, password);
+            commandFrame.createFrame();
         }
-        CommandFrame commandFrame = new CommandFrame(datagramChannel, socket, login, password);
-        commandFrame.run();
     }
 
 
-    public void choose(DatagramChannel datagramChannel, SocketAddress socket, String command, String login, String password, JFrame jFrame) throws IOException, ClassNotFoundException {
-        String[] finalUserCommand = command.trim().split(" ");
-        if (finalUserCommand.length == 1) {
-            switch (finalUserCommand[0]) {
-                case "":
-                    break;
-                case "clear":
-                case "help":
-                case "info":
-                case "show":
-                case "print_field_ascending_distance":
-                case "min_by_distance":
-                case "max_by_from":
-                case "remove_head": {
-                    Command request = new Command(finalUserCommand[0], login, password);
+    public void choose(DatagramChannel datagramChannel, SocketAddress socket, String command, String login, String password, JFrame jFrame, JTextArea output, DefaultTableModel defaultTableModel) throws IOException, ClassNotFoundException {
+        StringBuilder stringBuilder = new StringBuilder();
+        switch (command) {
+            case "":
+                break;
+            case "clear":
+            case "help":
+            case "info":
+            case "show":
+            case "print_field_ascending_distance":
+            case "min_by_distance":
+            case "max_by_from":
+            case "remove_head": {
+                Command request = new Command(command, login, password);
+                sendCommand(datagramChannel, socket, request);
+                getAnswer(datagramChannel, socket, buf, output, command);
+            }
+            break;
+            case "add_if_max":
+            case "add": {
+                Command request = new Command(command, getRoute(), login, password);
+                sendCommand(datagramChannel, socket, request);
+                getAnswer(datagramChannel, socket, buf, output, command);
+            }
+            break;
+            case "remove_by_id":
+                try {
+                    String id = JOptionPane.showInputDialog(jFrame, "Введите id");
+                    if (id.equals("")) throw new NumberFormatException();
+                    Command request = new Command(command, id, login, password);
                     sendCommand(datagramChannel, socket, request);
-                    getAnswer(datagramChannel, socket, buf);
+                    getAnswer(datagramChannel, socket, buf, output, command);
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(jFrame, "Вы ввели строку или число выходит за пределы int. Введите снова");
                 }
                 break;
-                case "add_if_max":
-                case "add":
-                case "remove_lower": {
-                    Command request = new Command(finalUserCommand[0], getRoute(), login, password);
+            case "update":
+                try {
+                    String id = JOptionPane.showInputDialog(jFrame, "Введите id");
+                    jFrame.setVisible(false);
+                    Command request = new Command(command, id, getRoute(), login, password);
                     sendCommand(datagramChannel, socket, request);
-                    getAnswer(datagramChannel, socket, buf);
+                    getAnswer(datagramChannel, socket, buf, output, command);
+                } catch (NumberFormatException e) {
+                    System.out.println("Вы ввели строку или число выходит за пределы int. Введите снова");
                 }
-                case "update":
-                    try {
-                        String id = JOptionPane.showInputDialog(jFrame, "Введите id");
-                        jFrame.setVisible(false);
-                        Command request = new Command(finalUserCommand[0], id, getRoute(), login, password);
-                        sendCommand(datagramChannel, socket, request);
-                        getAnswer(datagramChannel, socket, buf);
-                    } catch (NumberFormatException e) {
-                        System.out.println("Вы ввели строку или число выходит за пределы int. Введите снова");
-                    }
-                    break;
-                case "exit":
-                    System.exit(0);
-                default:
-                    System.out.println("Неизвестная команда или команда введена без аргументов. Введите снова");
-            }
-        } else if (finalUserCommand.length == 2) {
-            switch (finalUserCommand[0]) {
-                case "remove_by_id":
-                    try {
-                        Integer.parseInt(finalUserCommand[1]);
-                        Command request = new Command(finalUserCommand[0], finalUserCommand[1], login, password);
-                        sendCommand(datagramChannel, socket, request);
-                        getAnswer(datagramChannel, socket, buf);
-                    } catch (NumberFormatException e) {
-                        System.out.println("Вы ввели строку или число выходит за пределы int. Введите снова");
-                    }
-                    break;
-                case "execute_script":
-                    scriptOn = true;
-                    File file = new File(finalUserCommand[1]);
+                break;
+            case "execute_script":
+                JFileChooser fileopen = new JFileChooser();
+                int ret = fileopen.showDialog(null, "Открыть файл");
+                if (ret == JFileChooser.APPROVE_OPTION) {
+                    File file = fileopen.getSelectedFile();
                     if (!file.exists())
                         System.out.println("Файла с таким именем не существует.");
                     else if (!file.canRead())
                         System.out.println("Файл защищён от чтения. Невозможно выполнить скрипт.");
                     else if (scriptRepeat.contains(file)) {
                         System.out.println("Могло произойти зацикливание при исполнении скрипта: "
-                                + finalUserCommand[1] + "\nКоманда не будет выполнена. Переход к следующей команде");
+                                + file.getName() + "\nКоманда не будет выполнена. Переход к следующей команде");
                     } else {
                         scriptRepeat.add(file);
                         try {
                             commandReader = new BufferedReader(new FileReader(file));
                             String line = commandReader.readLine();
                             while (line != null) {
-                                choose(datagramChannel, socket, line, login, password, jFrame);
-                                System.out.println();
+                                choose(datagramChannel, socket, line, login, password, jFrame, output, defaultTableModel);
+                                System.out.println(line);
+                                stringBuilder.append(getAnswerCommand()).append("\n\n");
                                 line = commandReader.readLine();
                             }
                             System.out.println("Скрипт исполнен");
+                            output.setText(stringBuilder.toString());
                         } catch (IOException ex) {
                             System.out.println("Невозможно считать скрипт");
                         }
                         scriptRepeat.remove(scriptRepeat.size() - 1);
                     }
                     scriptOn = false;
-                    break;
-                default:
-                    System.out.println("Неизвестная команда или команда введена без аргументов. Введите снова");
-            }
+                }
+                break;
+            case "exit":
+                System.exit(0);
+            default:
+                System.out.println("Неизвестная команда или команда введена без аргументов. Введите снова");
         }
     }
 
@@ -138,8 +141,8 @@ public class Manager {
     }
 
 
-    public void getAnswer(DatagramChannel datagramChannel, SocketAddress socketAddress, byte[] codedPacket) throws IOException, ClassNotFoundException {
-        String answer;
+    public void getAnswer(DatagramChannel datagramChannel, SocketAddress socketAddress, byte[] codedPacket, JTextArea output, String command) throws IOException, ClassNotFoundException {
+        this.output = output;
         ByteBuffer buffer = ByteBuffer.wrap(codedPacket);
         buffer.clear();
         try {
@@ -154,10 +157,12 @@ public class Manager {
                     System.exit(0);
                 case "Авторизация прошла успешно":
                     access = true;
-                    System.out.println("Вы успешно авторизованы. Введите help чтобы узнать список доступных команд.");
+                    output.setText("Вы успешно авторизованы. Введите help чтобы узнать список доступных команд.");
                     break;
                 default:
-                    System.out.println(answer);
+                    if (!command.equals("show") && !scriptOn) {
+                        output.setText(answer);
+                    }
                     break;
             }
         } catch (IOException e) {
@@ -167,117 +172,8 @@ public class Manager {
         }
     }
 
-    int id = 0;
-    TextInput commandd = new TextInput();
-    Route route;
-    Location from = new Location((float) 0.0, 0.0, 0, null);
-
-    public String readString(String type) {
-        String smth;
-        do {
-            commandd.output("Введите " + type);
-            smth = commandd.getNextInput().trim();
-
-        } while (smth.equals(""));
-        return smth;
-    }
-
-    public Integer readInteger(String type, Integer odz) {
-        String introduced;
-        Integer general = null;
-        do {
-            commandd.output("Введите " + type);
-            introduced = commandd.getNextInput().trim();
-            String a[] = type.split("");
-            if (!(a[0].equals("Location") && a[1].equals("from"))) {
-                try {
-                    general = Integer.parseInt(introduced);
-                    if (general < odz) {
-                        general = null;
-                        System.out.println("Поле должно быть больше " + odz);
-                    }
-                } catch (NumberFormatException n) {
-                    System.out.println("Это не число");
-                }
-            } else {
-                if (introduced.equals("")) {
-                    general = null;
-                    return general;
-                }
-            }
-        } while (general == null);
-        return general;
-    }
-
-    public Float readFloat(String type) {
-        String introduced;
-        Float general = null;
-        do {
-            commandd.output("Введите " + type);
-            introduced = commandd.getNextInput().trim();
-            if (introduced == "") {
-                general = null;
-            } else {
-                try {
-                    general = Float.parseFloat(introduced);
-                    float p = general;
-                    int o = (int) p;
-                    int i = introduced.length() - String.valueOf(o).length() - 1;
-                    if (i > 6) {
-                        System.out.println("Длина дробной части-" + i + ".Происходит округление, чтобы число не округлялось длина дробной части должна быть меньше 7");
-                    }
-                } catch (NumberFormatException n) {
-                    System.out.println("Это не число");
-                }
-            }
-        }
-        while (general == null);
-        return general;
-    }
-
-    public Double readDouble(String type) {
-        String introcuced;
-        Double general = null;
-        do {
-            commandd.output("Введите " + type);
-            introcuced = commandd.getNextInput().trim();
-            if (introcuced == "") {
-                general = null;
-            } else {
-                try {
-                    general = Double.parseDouble(introcuced);
-                    double p = general;
-                    int o = (int) p;
-                    int i = introcuced.length() - String.valueOf(o).length() - 1;
-                    if (i > 15) {
-                        System.out.println("Длина дробной части-" + i + ".Происходит округление, чтобы число не округлялось длина дробной части должна быть меньше 16");
-                    }
-                } catch (NumberFormatException n) {
-                    System.out.println("Это не число");
-                }
-            }
-        } while (general == null);
-        return general;
-    }
-
-    public Long readDistance() {
-
-        String distance;
-        Long distance1 = null;
-        do {
-            commandd.output("Введите расстояние ");
-            distance = commandd.getNextInput().trim();
-            try {
-                distance1 = Long.parseLong(distance);
-                if (distance1 <= 1) {
-                    distance1 = null;
-                    System.out.println("Поле должно быть больше 1");
-                }
-            } catch (NumberFormatException n) {
-                System.out.println("Это не число");
-            }
-        } while (distance1 == null);
-        return distance1;
+    public JTextArea getOutput() {
+        return output;
     }
 
     public void setRoute(Route route) {
@@ -286,5 +182,10 @@ public class Manager {
 
     public Route getRoute() {
         return route;
+    }
+
+
+    public String getAnswerCommand() {
+        return answer;
     }
 }

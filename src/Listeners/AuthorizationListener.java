@@ -18,6 +18,7 @@ public class AuthorizationListener implements ActionListener {
     private SocketAddress socketAddress;
     private Manager manager = new Manager();
     private AuthorizationFrame authorizationFrame;
+    private JTextArea output = new JTextArea();
     public AuthorizationListener(DatagramChannel datagramChannel, JTextField login , JTextField password, SocketAddress socketAddress,AuthorizationFrame authorizationFrame){
         this.datagramChannel=datagramChannel;
         this.login=login;
@@ -29,10 +30,8 @@ public class AuthorizationListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         try {
             authorizationFrame.setVisible(false);
-            manager.work(datagramChannel,socketAddress,"sign",login.getText(),password.getText());
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } catch (ClassNotFoundException ex) {
+            manager.work(datagramChannel,socketAddress,"sign",login.getText(),password.getText(),output);
+        } catch (IOException | ClassNotFoundException ex) {
             ex.printStackTrace();
         }
     }

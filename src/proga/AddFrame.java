@@ -3,6 +3,7 @@ package proga;
 import Listeners.AddListener;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -25,23 +26,24 @@ public class AddFrame extends JFrame {
     private JTextField distance;
     public JButton send;
 
-    public AddFrame(String title, DatagramChannel datagramChannel, SocketAddress socketAddress, String login, String password) {
+    public AddFrame(String title, DatagramChannel datagramChannel, SocketAddress socketAddress, String login, String password, JTextArea output, DefaultTableModel defaultTableModel) {
         super(title);
-        nameRoute.setDocument(new LimitedDocument(5));
-        coordinatesX.setDocument(new LimitedDocument(5));
-        coordinatesY.setDocument(new LimitedDocument(5));
-        locationFromX.setDocument(new LimitedDocument(5));
-        locationFromY.setDocument(new LimitedDocument(5));
-        locationFromZ.setDocument(new LimitedDocument(5));
-        locationFromName.setDocument(new LimitedDocument(5));
-        locationToX.setDocument(new LimitedDocument(5));
-        locationToY.setDocument(new LimitedDocument(5));
-        locationToZ.setDocument(new LimitedDocument(5));
-        locationToName.setDocument(new LimitedDocument(5));
-        distance.setDocument(new LimitedDocument(5));
+        nameRoute.setDocument(new LimitedDocument(10));
+        coordinatesX.setDocument(new LimitedDocument(3));
+        coordinatesY.setDocument(new LimitedDocument(3));
+        locationFromX.setDocument(new LimitedDocument(3));
+        locationFromY.setDocument(new LimitedDocument(3));
+        locationFromZ.setDocument(new LimitedDocument(3));
+        locationFromName.setDocument(new LimitedDocument(3));
+        locationToX.setDocument(new LimitedDocument(3));
+        locationToY.setDocument(new LimitedDocument(3));
+        locationToZ.setDocument(new LimitedDocument(3));
+        locationToName.setDocument(new LimitedDocument(3));
+        distance.setDocument(new LimitedDocument(3));
         this.setContentPane(contentPane);
         this.pack();
-        send.addActionListener(new AddListener(this, datagramChannel, socketAddress, login, password, title));
+        this.setLocationRelativeTo(null);
+        send.addActionListener(new AddListener(this, datagramChannel, socketAddress, login, password, title,output,defaultTableModel));
     }
 
     public void run() {
@@ -91,6 +93,7 @@ public class AddFrame extends JFrame {
     public JTextField getLocationToZ() {
         return locationToZ;
     }
+
     public JTextField getNameRoute() {
         return nameRoute;
     }

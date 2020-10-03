@@ -17,6 +17,7 @@ public class RegistrationListener implements ActionListener {
     private SocketAddress socketAddress;
     private Manager manager = new Manager();
     private AuthorizationFrame authorizationFrame;
+    private JTextArea output = new JTextArea();
     public RegistrationListener(DatagramChannel datagramChannel, JTextField login , JTextField password, SocketAddress socketAddress,AuthorizationFrame authorizationFrame){
         this.datagramChannel=datagramChannel;
         this.login=login;
@@ -27,11 +28,9 @@ public class RegistrationListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            manager.work(datagramChannel,socketAddress,"reg",login.getText(),password.getText());
+            manager.work(datagramChannel,socketAddress,"reg",login.getText(),password.getText(),output);
             authorizationFrame.setVisible(false);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } catch (ClassNotFoundException ex) {
+        } catch (IOException | ClassNotFoundException ex) {
             ex.printStackTrace();
         }
     }

@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * Класс для передачи команд в виде объекта
  */
-public class Command implements Serializable,Runnable {
+public class Command implements Serializable, Runnable {
     private static final long serialVersionUID = 17L;
     private String name;
     private String args;
@@ -51,7 +51,9 @@ public class Command implements Serializable,Runnable {
         return args;
     }
 
-    public Route getRoute() { return route; }
+    public Route getRoute() {
+        return route;
+    }
 
     public String getLogin() {
         return login;
