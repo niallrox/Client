@@ -43,7 +43,7 @@ public class Manager {
     public void choose(DatagramChannel datagramChannel, SocketAddress socket, String command, String login, String password, JFrame jFrame, JTextArea output, DefaultTableModel defaultTableModel) throws IOException, ClassNotFoundException {
         StringBuilder stringBuilder = new StringBuilder();
         switch (command) {
-            case "":
+            case "": 
                 break;
             case "clear":
             case "help":
