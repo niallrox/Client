@@ -29,7 +29,7 @@ public class VisualPanel extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 for (Map.Entry<String, RouteSpawner> route : routes.entrySet()) {
-                    if (route.getValue().getPath().contains(e.getX(),e.getY())) {
+                    if (route.getValue().getPath().contains(e.getX(), e.getY())) {
                         output.setText("id: " + route.getValue().getId() + "\n" +
                                 "name: " + route.getValue().getName() + "\n" +
                                 "coordinatesX: " + route.getValue().getCoordinatesX() + "\n" +
@@ -95,7 +95,6 @@ public class VisualPanel extends JPanel {
                         !routes.get(elementServer.getKey()).getLocationToName().equals(elementServer.getValue().getLocationToName()) ||
                         !routes.get(elementServer.getKey()).getDistance().equals(elementServer.getValue().getDistance())) {
                     new Thread(new AnimationUpdate(routes.get(elementServer.getKey()), elementServer.getValue(), this, routes, elementServer.getKey())).start();
-                    routes.put(elementServer.getKey(), elementServer.getValue());
                 }
                 repaint();
             }

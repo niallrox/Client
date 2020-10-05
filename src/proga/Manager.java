@@ -23,6 +23,7 @@ public class Manager {
     private JTextArea output;
     private String element;
     private String answer;
+    private String id;
 
 
     public void work(DatagramChannel datagramChannel, SocketAddress socket, String command, String login, String password, JTextArea output) throws IOException, ClassNotFoundException {
@@ -30,12 +31,22 @@ public class Manager {
             Command request = new Command("reg", login, password);
             sendCommand(datagramChannel, socket, request);
             getAnswer(datagramChannel, socket, buf, output, "reg");
+            if (getAnswerCommand().equals("V-vendetta")) {
+                JOptionPane.showMessageDialog(output, "Зарегайтесь по братски");
+                System.exit(0);
+            }
+            JOptionPane.showMessageDialog(output, "Вы успешно зарегистрированы");
         } else if (command.equals("sign")) {
             Command request = new Command("sign", login, password);
-//            sendCommand(datagramChannel, socket, request);
-//            getAnswer(datagramChannel, socket, buf, output, "sign");
-            CommandFrame commandFrame = new CommandFrame(datagramChannel, socket, login, password);
-            commandFrame.createFrame();
+            sendCommand(datagramChannel, socket, request);
+            getAnswer(datagramChannel, socket, buf, output, "sign");
+            if (getAnswerCommand().equals("Логин или пароль введены неверно")) {
+                JOptionPane.showMessageDialog(output, "Логин или пароль введены неверно");
+                System.exit(0);
+            } else {
+                CommandFrame commandFrame = new CommandFrame(datagramChannel, socket, login, password);
+                commandFrame.createFrame();
+            }
         }
     }
 
@@ -78,9 +89,8 @@ public class Manager {
                 break;
             case "update":
                 try {
-                    String id = JOptionPane.showInputDialog(jFrame, "Введите id");
                     jFrame.setVisible(false);
-                    Command request = new Command(command, id, getRoute(), login, password);
+                    Command request = new Command(command, getId(), getRoute(), login, password);
                     sendCommand(datagramChannel, socket, request);
                     getAnswer(datagramChannel, socket, buf, output, command);
                 } catch (NumberFormatException e) {
@@ -102,7 +112,7 @@ public class Manager {
                     } else {
                         scriptRepeat.add(file);
                         try {
-                            scriptOn=true;
+                            scriptOn = true;
                             commandReader = new BufferedReader(new FileReader(file));
                             String line = commandReader.readLine();
                             while (line != null) {
@@ -167,7 +177,8 @@ public class Manager {
                     break;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(output, "Подключитесь к серверу");
+            System.exit(0);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -175,6 +186,14 @@ public class Manager {
 
     public JTextArea getOutput() {
         return output;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public void setRoute(Route route) {

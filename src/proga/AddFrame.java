@@ -25,8 +25,10 @@ public class AddFrame extends JFrame {
     private JTextField locationToName;
     private JTextField distance;
     public JButton send;
+    private String id;
+    private Manager manager = new Manager();
 
-    public AddFrame(String title, DatagramChannel datagramChannel, SocketAddress socketAddress, String login, String password, JTextArea output, DefaultTableModel defaultTableModel) {
+    public AddFrame(String title, DatagramChannel datagramChannel, SocketAddress socketAddress, String login, String password, JTextArea output, DefaultTableModel defaultTableModel,String id) {
         super(title);
         nameRoute.setDocument(new LimitedDocument(10));
         coordinatesX.setDocument(new LimitedDocument(3));
@@ -40,16 +42,65 @@ public class AddFrame extends JFrame {
         locationToZ.setDocument(new LimitedDocument(3));
         locationToName.setDocument(new LimitedDocument(3));
         distance.setDocument(new LimitedDocument(3));
+        this.id=id;
         this.setContentPane(contentPane);
         this.pack();
         this.setLocationRelativeTo(null);
-        send.addActionListener(new AddListener(this, datagramChannel, socketAddress, login, password, title,output,defaultTableModel));
+        send.addActionListener(new AddListener(this, datagramChannel, socketAddress, login, password, title,output,defaultTableModel,id));
     }
 
     public void run() {
         setVisible(true);
     }
 
+    public void setCoordinatesX(String coordinatesX) {
+        this.coordinatesX.setText(coordinatesX);
+    }
+
+    public void setCoordinatesY(String coordinatesY) {
+        this.coordinatesY.setText(coordinatesY);
+    }
+
+    public void setDistance(String distance) {
+        this.distance.setText(distance);
+    }
+
+    public void setLocationFromName(String locationFromName) {
+        this.locationFromName.setText(locationFromName);
+    }
+
+    public void setLocationFromX(String locationFromX) {
+        this.locationFromX.setText(locationFromX);
+    }
+
+    public void setLocationFromY(String locationFromY) {
+        this.locationFromY.setText(locationFromY);
+    }
+
+
+    public void setNameRoute(String nameRoute) {
+        this.nameRoute.setText(nameRoute);
+    }
+
+    public void setLocationFromZ(String locationFromZ) {
+        this.locationFromZ.setText(locationFromZ);
+    }
+
+    public void setLocationToName(String locationToName) {
+        this.locationToName.setText(locationToName);
+    }
+
+    public void setLocationToX(String locationToX) {
+        this.locationToX.setText(locationToX);
+    }
+
+    public void setLocationToY(String locationToY) {
+        this.locationToY.setText(locationToY);
+    }
+
+    public void setLocationToZ(String locationToZ) {
+        this.locationToZ.setText(locationToZ);
+    }
     public JTextField getCoordinatesX() {
         return coordinatesX;
     }

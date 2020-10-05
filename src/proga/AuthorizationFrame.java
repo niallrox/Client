@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.DatagramChannel;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class AuthorizationFrame extends JFrame {
     private JPanel contentPane;
@@ -14,6 +16,10 @@ public class AuthorizationFrame extends JFrame {
     private JTextField passwordInput;
     private JButton registration;
     private JButton authorization;
+    private JLabel login;
+    private JLabel password;
+    private JComboBox<String> languages;
+    private ResourceBundle resourceBundle = ResourceBundle.getBundle("resources");
 
     public AuthorizationFrame(String title, DatagramChannel datagramChannel, SocketAddress socketAddress) throws IOException {
         super(title);
@@ -23,6 +29,34 @@ public class AuthorizationFrame extends JFrame {
         this.setLocationRelativeTo(null);
         authorization.addActionListener(new AuthorizationListener(datagramChannel, loginInput, passwordInput, socketAddress, this));
         registration.addActionListener(new RegistrationListener(datagramChannel, loginInput, passwordInput, socketAddress, this));
+        languages.addActionListener(e -> {
+            choseLanguage(languages);
+            login.setText(getResourceBundle().getString("login"));
+            password.setText(getResourceBundle().getString("password"));
+            registration.setText(getResourceBundle().getString("reg"));
+            authorization.setText(getResourceBundle().getString("sign"));
+        });
+    }
+    public void choseLanguage(JComboBox<String> languages) {
+        String language = (String) languages.getSelectedItem();
+        switch (language) {
+            case "русский":
+                resourceBundle = ResourceBundle.getBundle("resources");
+                break;
+            case "english":
+                resourceBundle = ResourceBundle.getBundle("resources", new Locale("en"));
+                break;
+            case "espanya":
+                resourceBundle = ResourceBundle.getBundle("resources", new Locale("sp"));
+                break;
+            case "suomalainen":
+                resourceBundle = ResourceBundle.getBundle("resources", new Locale("fi"));
+                break;
+        }
+    }
+
+    public ResourceBundle getResourceBundle() {
+        return resourceBundle;
     }
 
     public void run() {

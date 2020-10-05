@@ -7,6 +7,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.DatagramChannel;
@@ -25,6 +27,20 @@ public class CommandFrame extends JFrame implements Runnable {
     private DefaultTableModel defaultTableModel;
     private VisualPanel visualPanel = new VisualPanel(output);
     private ResourceBundle resourceBundle = ResourceBundle.getBundle("resources");
+    private String nameRoute;
+    private String coordX;
+    private String coordY;
+    private String locFromX;
+    private String locFromY;
+    private String locFromZ;
+    private String locFromName;
+    private String locToX;
+    private String locToY;
+    private String locToZ;
+    private String locToName;
+    private String distance;
+    private String id;
+
 
     public CommandFrame(DatagramChannel datagramChannel, SocketAddress socketAddress, String login, String password) {
         this.datagramChannel = datagramChannel;
@@ -46,9 +62,42 @@ public class CommandFrame extends JFrame implements Runnable {
         JTabbedPane jTabbedPane = new JTabbedPane();
         jTabbedPane.setPreferredSize(new Dimension(800, 600));
         JPanel tablePanel = new JPanel();
-        String[] title = {"id", "name", "coordX", "coordY", "creationDate", "locFromX", "locFromY", "locFromZ","locFromName", "locToX", "locToY", "locToZ","locToName", "distance", "login"};
+        String[] title = {"id", "name", "coordX", "coordY", "creationDate", "locFromX", "locFromY", "locFromZ", "locFromName", "locToX", "locToY", "locToZ", "locToName", "distance", "login"};
         defaultTableModel = new DefaultTableModel(title, 0);
         JTable jTable = new JTable(defaultTableModel);
+
+        jTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() >= 1) //двойной шелчок
+                {
+                    try {
+                        int row = jTable.rowAtPoint(e.getPoint()); //путь попроще без selectionMode
+                        if (row > -1) {
+                            int realRow = jTable.convertRowIndexToModel(row); //номер строки из модели данных
+                            //здесь должна быть выборка объекта из модели по номеру строки и его отображение
+                            setId((String) defaultTableModel.getValueAt(realRow, 0));
+                            System.out.println(getId());
+                            manager.setId(getId());
+                            setNameRoute((String) defaultTableModel.getValueAt(realRow, 1));
+                            setCoordX((String) defaultTableModel.getValueAt(realRow, 2));
+                            setCoordY((String) defaultTableModel.getValueAt(realRow, 3));
+                            setLocFromX((String) defaultTableModel.getValueAt(realRow, 5));
+                            setLocFromY((String) defaultTableModel.getValueAt(realRow, 6));
+                            setLocFromZ((String) defaultTableModel.getValueAt(realRow, 7));
+                            setLocFromName((String) defaultTableModel.getValueAt(realRow, 8));
+                            setLocToX((String) defaultTableModel.getValueAt(realRow, 9));
+                            setLocToY((String) defaultTableModel.getValueAt(realRow, 10));
+                            setLocToZ((String) defaultTableModel.getValueAt(realRow, 11));
+                            setLocToName((String) defaultTableModel.getValueAt(realRow, 12));
+                            setDistance((String) defaultTableModel.getValueAt(realRow, 13));
+                        }
+                    } catch (IndexOutOfBoundsException ignored) {
+                    }
+                }
+            }
+        });
+
         RowSorter<TableModel> sorter = new TableRowSorter<>(defaultTableModel);
         jTable.setRowSorter(sorter);
         jTable.setFillsViewportHeight(true);
@@ -60,14 +109,14 @@ public class CommandFrame extends JFrame implements Runnable {
 
         JButton add = new JButton("add");
         add.addActionListener(e -> {
-            AddFrame addFrame = new AddFrame("add", datagramChannel, socketAddress, login, password, output, defaultTableModel);
+            AddFrame addFrame = new AddFrame("add", datagramChannel, socketAddress, login, password, output, defaultTableModel, getId());
             addFrame.run();
         });
         jpanelCommands.add(add);
 
         JButton addIfMax = new JButton("addIfMax");
         addIfMax.addActionListener(e -> {
-            AddFrame addFrame = new AddFrame("add_if_max", datagramChannel, socketAddress, login, password, output, defaultTableModel);
+            AddFrame addFrame = new AddFrame("add_if_max", datagramChannel, socketAddress, login, password, output, defaultTableModel, getId());
             addFrame.run();
         });
 
@@ -105,7 +154,7 @@ public class CommandFrame extends JFrame implements Runnable {
         jpanelCommands.add(removeId);
         JButton removeLower = new JButton("removeLower");
         removeLower.addActionListener(e -> {
-            AddFrame addFrame = new AddFrame("remove_lower", datagramChannel, socketAddress, login, password, output, defaultTableModel);
+            AddFrame addFrame = new AddFrame("remove_lower", datagramChannel, socketAddress, login, password, output, defaultTableModel, getId());
             addFrame.run();
         });
 
@@ -113,7 +162,20 @@ public class CommandFrame extends JFrame implements Runnable {
 
         JButton update = new JButton("update");
         update.addActionListener(e -> {
-            AddFrame addFrame = new AddFrame("update", datagramChannel, socketAddress, login, password, output, defaultTableModel);
+            AddFrame addFrame = new AddFrame("update", datagramChannel, socketAddress, login, password, output, defaultTableModel, getId());
+            manager.setId(getId());
+            addFrame.setNameRoute(getNameRoute());
+            addFrame.setCoordinatesX(getCoordX());
+            addFrame.setCoordinatesY(getCoordY());
+            addFrame.setLocationFromX(getLocFromX());
+            addFrame.setLocationFromY(getLocFromY());
+            addFrame.setLocationFromZ(getLocFromZ());
+            addFrame.setLocationFromName(getLocFromName());
+            addFrame.setLocationToX(getLocToX());
+            addFrame.setLocationToY(getLocToY());
+            addFrame.setLocationToZ(getLocToZ());
+            addFrame.setLocationToName(getLocToName());
+            addFrame.setDistance(getDistance());
             addFrame.run();
         });
         jpanelCommands.add(update);
@@ -122,13 +184,13 @@ public class CommandFrame extends JFrame implements Runnable {
         jpanelCommands.add(executeScript);
 
         JLabel labelLogin = new JLabel("login: \n" + login);
-        String []language = {"русский","english","suomalainen","espanya"};
+        String[] language = {"русский", "english", "suomalainen", "espanya"};
         JComboBox<String> languages = new JComboBox<>(language);
         languages.addActionListener(e -> {
             choseLanguage(languages);
             String[] commandsLanguage = {getResourceBundle().getString("add"), getResourceBundle().getString("addIfMax"), getResourceBundle().getString("clear"), getResourceBundle().getString("help"),
                     getResourceBundle().getString("info"), getResourceBundle().getString("maxByFrom"), getResourceBundle().getString("minByDistance"), getResourceBundle().getString("printFieldAscendingDistance"),
-                    getResourceBundle().getString("removeHead"), getResourceBundle().getString("removeId"), getResourceBundle().getString("removeLower"),getResourceBundle().getString("update"),getResourceBundle().getString("executeScript")};
+                    getResourceBundle().getString("removeHead"), getResourceBundle().getString("removeId"), getResourceBundle().getString("removeLower"), getResourceBundle().getString("update"), getResourceBundle().getString("executeScript")};
             for (int i = 0; i < commandsLanguage.length; i++) {
                 ((JButton) jpanelCommands.getComponent(i)).setText(commandsLanguage[i]);
             }
@@ -136,8 +198,8 @@ public class CommandFrame extends JFrame implements Runnable {
             jTabbedPane.setTitleAt(0, getResourceBundle().getString("table"));
             jTabbedPane.setTitleAt(1, getResourceBundle().getString("visualisation"));
         });
-        mainPanel.add(languages,BorderLayout.SOUTH);
-        mainPanel.add(labelLogin,BorderLayout.WEST);
+        mainPanel.add(languages, BorderLayout.SOUTH);
+        mainPanel.add(labelLogin, BorderLayout.WEST);
         mainPanel.add(jpanelCommands, BorderLayout.NORTH);
         mainPanel.add(jScrollPaneOutput, BorderLayout.EAST);
         tablePanel.add(jTabbedPane);
@@ -163,8 +225,8 @@ public class CommandFrame extends JFrame implements Runnable {
             HashMap<String, RouteSpawner> elementsServer = new HashMap<>();
             do {
                 String condition;
-                    getManager().choose(datagramChannel, socketAddress, "show", login, password, this, output, defaultTableModel);
-                    condition = getManager().getAnswerCommand();
+                getManager().choose(datagramChannel, socketAddress, "show", login, password, this, output, defaultTableModel);
+                condition = getManager().getAnswerCommand();
                 if (!condition.equals("Коллекция пуста")) {
                     Scanner scanner = new Scanner(condition);
                     elementsServer.clear();
@@ -177,7 +239,7 @@ public class CommandFrame extends JFrame implements Runnable {
                             getVisualPanel().getColors().put(arguments[14], new Color(rgb[0], rgb[1], rgb[2]));
                         }
                         RouteSpawner routeSpawner = new RouteSpawner(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5],
-                                arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13],arguments[14]);
+                                arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]);
                         elementsServer.put(arguments[0], routeSpawner);
                     } while (scanner.hasNextLine());
                     getVisualPanel().updateElement(elementsServer);
@@ -195,13 +257,12 @@ public class CommandFrame extends JFrame implements Runnable {
                     Thread.sleep(1000);
                 }
             } while (true);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            getOutput().setText("serverEx");
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
+        } catch (IOException | ClassNotFoundException | InterruptedException e) {
+            JOptionPane.showMessageDialog(this, "Сервер сказал пока ");
+            System.exit(0);
         }
     }
+
     public void choseLanguage(JComboBox<String> languages) {
         String language = (String) languages.getSelectedItem();
         switch (language) {
@@ -234,5 +295,109 @@ public class CommandFrame extends JFrame implements Runnable {
 
     public ResourceBundle getResourceBundle() {
         return resourceBundle;
+    }
+
+    public void setNameRoute(String nameRoute) {
+        this.nameRoute = nameRoute;
+    }
+
+    public String getNameRoute() {
+        return nameRoute;
+    }
+
+    public void setCoordX(String coordX) {
+        this.coordX = coordX;
+    }
+
+    public String getCoordX() {
+        return coordX;
+    }
+
+    public void setCoordY(String coordY) {
+        this.coordY = coordY;
+    }
+
+    public String getCoordY() {
+        return coordY;
+    }
+
+    public void setLocFromX(String locFromX) {
+        this.locFromX = locFromX;
+    }
+
+    public String getLocFromX() {
+        return locFromX;
+    }
+
+    public void setLocFromY(String locFromY) {
+        this.locFromY = locFromY;
+    }
+
+    public String getLocFromY() {
+        return locFromY;
+    }
+
+    public void setLocFromZ(String locFromZ) {
+        this.locFromZ = locFromZ;
+    }
+
+    public String getLocFromZ() {
+        return locFromZ;
+    }
+
+    public void setLocFromName(String locFromName) {
+        this.locFromName = locFromName;
+    }
+
+    public String getLocFromName() {
+        return locFromName;
+    }
+
+    public void setLocToX(String locToX) {
+        this.locToX = locToX;
+    }
+
+    public String getLocToX() {
+        return locToX;
+    }
+
+    public void setLocToY(String locToY) {
+        this.locToY = locToY;
+    }
+
+    public String getLocToY() {
+        return locToY;
+    }
+
+    public void setLocToZ(String locToZ) {
+        this.locToZ = locToZ;
+    }
+
+    public String getLocToZ() {
+        return locToZ;
+    }
+
+    public void setLocToName(String locToName) {
+        this.locToName = locToName;
+    }
+
+    public String getLocToName() {
+        return locToName;
+    }
+
+    public void setDistance(String distance) {
+        this.distance = distance;
+    }
+
+    public String getDistance() {
+        return distance;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
     }
 }
