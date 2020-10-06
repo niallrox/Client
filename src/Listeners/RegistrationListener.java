@@ -1,6 +1,7 @@
 package Listeners;
 
 import proga.AuthorizationFrame;
+import proga.ConnectionFrame;
 import proga.Manager;
 
 import javax.swing.*;
@@ -18,21 +19,22 @@ public class RegistrationListener implements ActionListener {
     private Manager manager = new Manager();
     private AuthorizationFrame authorizationFrame;
     private JTextArea output = new JTextArea();
-    public RegistrationListener(DatagramChannel datagramChannel, JTextField login , JTextField password, SocketAddress socketAddress,AuthorizationFrame authorizationFrame){
+    private ConnectionFrame connectionFrame;
+    public RegistrationListener(DatagramChannel datagramChannel, JTextField login , JTextField password, SocketAddress socketAddress, AuthorizationFrame authorizationFrame, ConnectionFrame connectionFrame){
         this.datagramChannel=datagramChannel;
         this.login=login;
         this.password=password;
         this.socketAddress=socketAddress;
         this.authorizationFrame=authorizationFrame;
+        this.connectionFrame=connectionFrame;
     }
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            manager.work(datagramChannel,socketAddress,"reg",login.getText(),password.getText(),output);
+            manager.work(datagramChannel,socketAddress,"reg",login.getText(),password.getText(),output,authorizationFrame,connectionFrame);
         } catch (IOException | ClassNotFoundException ex) {
             JOptionPane.showMessageDialog(authorizationFrame,"Проверьте, правильно ли вы подключаетесь");
-            System.exit(0);
-            ex.printStackTrace();
+            connectionFrame.setVisible(true);
         }
     }
 }

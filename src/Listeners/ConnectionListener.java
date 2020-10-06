@@ -1,6 +1,7 @@
 package Listeners;
 
 import proga.AuthorizationFrame;
+import proga.ConnectionFrame;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -12,9 +13,9 @@ import java.nio.channels.DatagramChannel;
 public class ConnectionListener implements ActionListener {
     private JTextField host;
     private JTextField port;
-    private JFrame connectFrame;
+    private ConnectionFrame connectFrame;
 
-    public ConnectionListener(JTextField host, JTextField port, JFrame connectFrame) {
+    public ConnectionListener(JTextField host, JTextField port, ConnectionFrame connectFrame) {
         this.host = host;
         this.port = port;
         this.connectFrame = connectFrame;
@@ -28,7 +29,7 @@ public class ConnectionListener implements ActionListener {
             SocketAddress socketAddress = new InetSocketAddress(host.getText(), Integer.parseInt(port.getText()));
             datagramChannel.connect(socketAddress);
             connectFrame.setVisible(false);
-            AuthorizationFrame authFrame = new AuthorizationFrame("Регистрация/Вход", datagramChannel, socketAddress);
+            AuthorizationFrame authFrame = new AuthorizationFrame("Регистрация/Вход", datagramChannel, socketAddress, connectFrame);
             authFrame.run();
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(connectFrame,"Проверьте, правильно ли вы подключаетесь ");

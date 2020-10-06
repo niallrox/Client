@@ -2,6 +2,7 @@ package Listeners;
 
 import proga.AuthorizationFrame;
 import proga.Command;
+import proga.ConnectionFrame;
 import proga.Manager;
 
 import javax.swing.*;
@@ -20,22 +21,24 @@ public class AuthorizationListener implements ActionListener {
     private Manager manager = new Manager();
     private AuthorizationFrame authorizationFrame;
     private JTextArea output = new JTextArea();
-    public AuthorizationListener(DatagramChannel datagramChannel, JTextField login , JTextField password, SocketAddress socketAddress,AuthorizationFrame authorizationFrame){
+    private ConnectionFrame connectionFrame;
+    public AuthorizationListener(DatagramChannel datagramChannel, JTextField login , JTextField password, SocketAddress socketAddress, AuthorizationFrame authorizationFrame, ConnectionFrame connectionFrame){
         this.datagramChannel=datagramChannel;
         this.login=login;
         this.password=password;
         this.socketAddress=socketAddress;
         this.authorizationFrame=authorizationFrame;
+        this.connectionFrame=connectionFrame;
     }
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
+            if (login.getText().equals("") || password.getText().equals("")) throw new IOException();
             authorizationFrame.setVisible(false);
-            manager.work(datagramChannel,socketAddress,"sign",login.getText(),password.getText(),output);
+            manager.work(datagramChannel,socketAddress,"sign",login.getText(),password.getText(),output,authorizationFrame,connectionFrame);
         } catch (IOException | ClassNotFoundException ex) {
             JOptionPane.showMessageDialog(authorizationFrame,"Проверьте, правильно ли вы подключаетесь");
-            System.exit(0);
-            ex.printStackTrace();
+            connectionFrame.setVisible(true);
         }
     }
 }

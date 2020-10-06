@@ -12,10 +12,10 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.DatagramChannel;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.Scanner;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.*;
 
 public class CommandFrame extends JFrame implements Runnable {
     private DatagramChannel datagramChannel;
@@ -40,6 +40,7 @@ public class CommandFrame extends JFrame implements Runnable {
     private String locToName;
     private String distance;
     private String id;
+    private String defaultDate="dd-MM-yyyy";
 
 
     public CommandFrame(DatagramChannel datagramChannel, SocketAddress socketAddress, String login, String password) {
@@ -197,7 +198,20 @@ public class CommandFrame extends JFrame implements Runnable {
             output.setText("");
             jTabbedPane.setTitleAt(0, getResourceBundle().getString("table"));
             jTabbedPane.setTitleAt(1, getResourceBundle().getString("visualisation"));
+            for (int i=0; i < jTable.getRowCount(); i++){
+                String element = (String) jTable.getValueAt(i,4);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(defaultDate);
+                SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(getResourceBundle().getString("date"));
+                try {
+                    jTable.setValueAt(simpleDateFormat1.format(simpleDateFormat.parse(element)),i,4);
+                } catch (ParseException ex) {
+                    ex.printStackTrace();
+                }
+
+            }
+            defaultDate = getResourceBundle().getString("date");
         });
+
         mainPanel.add(languages, BorderLayout.SOUTH);
         mainPanel.add(labelLogin, BorderLayout.WEST);
         mainPanel.add(jpanelCommands, BorderLayout.NORTH);
@@ -227,7 +241,7 @@ public class CommandFrame extends JFrame implements Runnable {
                 String condition;
                 getManager().choose(datagramChannel, socketAddress, "show", login, password, this, output, defaultTableModel);
                 condition = getManager().getAnswerCommand();
-                if (!condition.equals("Коллекция пуста")) {
+                if (!condition.equals("Коллекция пуста.")) {
                     Scanner scanner = new Scanner(condition);
                     elementsServer.clear();
                     do {
@@ -259,6 +273,7 @@ public class CommandFrame extends JFrame implements Runnable {
             } while (true);
         } catch (IOException | ClassNotFoundException | InterruptedException e) {
             JOptionPane.showMessageDialog(this, "Сервер сказал пока ");
+            e.printStackTrace();
             System.exit(0);
         }
     }

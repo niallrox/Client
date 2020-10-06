@@ -24,25 +24,29 @@ public class Manager {
     private String element;
     private String answer;
     private String id;
+    private ConnectionFrame connectionFrame;
 
 
-    public void work(DatagramChannel datagramChannel, SocketAddress socket, String command, String login, String password, JTextArea output) throws IOException, ClassNotFoundException {
+    public void work(DatagramChannel datagramChannel, SocketAddress socket, String command, String login, String password, JTextArea output, AuthorizationFrame authorizationFrame, ConnectionFrame connectionFrame) throws IOException, ClassNotFoundException {
+        this.connectionFrame = connectionFrame;
         if (command.equals("reg")) {
             Command request = new Command("reg", login, password);
             sendCommand(datagramChannel, socket, request);
-            getAnswer(datagramChannel, socket, buf, output, "reg");
+            getAnswer(datagramChannel, socket, buf, output, "reg", connectionFrame);
             if (getAnswerCommand().equals("V-vendetta")) {
                 JOptionPane.showMessageDialog(output, "Зарегайтесь по братски");
                 System.exit(0);
             }
-            JOptionPane.showMessageDialog(output, "Вы успешно зарегистрированы");
+            if (getAnswerCommand().equals("Регистрация прошла успешно")){JOptionPane.showMessageDialog(output, "Вы успешно зарегистрированы");} else {
+                JOptionPane.showMessageDialog(output, "Проверьте корректность введеных данных");
+            }
         } else if (command.equals("sign")) {
             Command request = new Command("sign", login, password);
             sendCommand(datagramChannel, socket, request);
-            getAnswer(datagramChannel, socket, buf, output, "sign");
+            getAnswer(datagramChannel, socket, buf, output, "sign", connectionFrame);
             if (getAnswerCommand().equals("Логин или пароль введены неверно")) {
                 JOptionPane.showMessageDialog(output, "Логин или пароль введены неверно");
-                System.exit(0);
+                authorizationFrame.setVisible(true);
             } else {
                 CommandFrame commandFrame = new CommandFrame(datagramChannel, socket, login, password);
                 commandFrame.createFrame();
@@ -64,25 +68,28 @@ public class Manager {
             case "min_by_distance":
             case "max_by_from":
             case "remove_head": {
-                Command request = new Command(command, login, password);
-                sendCommand(datagramChannel, socket, request);
-                getAnswer(datagramChannel, socket, buf, output, command);
-            }
+                try {
+                    Command request = new Command(command, login, password);
+                    sendCommand(datagramChannel, socket, request);
+                    getAnswer(datagramChannel, socket, buf, output, command, connectionFrame);
+                } catch (IOException ex) {JOptionPane.showMessageDialog(jFrame,"подключитесь к серверу");
+                connectionFrame.setVisible(true);}}
             break;
             case "add_if_max":
             case "add": {
                 Command request = new Command(command, getRoute(), login, password);
                 sendCommand(datagramChannel, socket, request);
-                getAnswer(datagramChannel, socket, buf, output, command);
+                getAnswer(datagramChannel, socket, buf, output, command, connectionFrame);
             }
             break;
             case "remove_by_id":
                 try {
-                    String id = JOptionPane.showInputDialog(jFrame, "Введите id");
-                    if (id.equals("")) throw new NumberFormatException();
-                    Command request = new Command(command, id, login, password);
+                    CommandFrame commandFrame = (CommandFrame) jFrame;
+                    setId(commandFrame.getId());
+                    System.out.println(getId());
+                    Command request = new Command(command, getId(), login, password);
                     sendCommand(datagramChannel, socket, request);
-                    getAnswer(datagramChannel, socket, buf, output, command);
+                    getAnswer(datagramChannel, socket, buf, output, command, connectionFrame);
                 } catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(jFrame, "Вы ввели строку или число выходит за пределы int. Введите снова");
                 }
@@ -92,7 +99,7 @@ public class Manager {
                     jFrame.setVisible(false);
                     Command request = new Command(command, getId(), getRoute(), login, password);
                     sendCommand(datagramChannel, socket, request);
-                    getAnswer(datagramChannel, socket, buf, output, command);
+                    getAnswer(datagramChannel, socket, buf, output, command, connectionFrame);
                 } catch (NumberFormatException e) {
                     System.out.println("Вы ввели строку или число выходит за пределы int. Введите снова");
                 }
@@ -148,11 +155,14 @@ public class Manager {
             ByteBuffer buffer = ByteBuffer.wrap(sendbuf);
             buffer.clear();
             datagramChannel.send(buffer, socketAddress);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(output, "Подключитесь к серверу");
+            connectionFrame.setVisible(true);
         }
     }
 
 
-    public void getAnswer(DatagramChannel datagramChannel, SocketAddress socketAddress, byte[] codedPacket, JTextArea output, String command) throws IOException, ClassNotFoundException {
+    public void getAnswer(DatagramChannel datagramChannel, SocketAddress socketAddress, byte[] codedPacket, JTextArea output, String command, ConnectionFrame connectionFrame) throws IOException, ClassNotFoundException {
         this.output = output;
         ByteBuffer buffer = ByteBuffer.wrap(codedPacket);
         buffer.clear();
@@ -178,7 +188,7 @@ public class Manager {
             }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(output, "Подключитесь к серверу");
-            System.exit(0);
+            connectionFrame.setVisible(true);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

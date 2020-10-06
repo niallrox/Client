@@ -56,7 +56,9 @@ public class AddListener implements ActionListener {
             if (Integer.parseInt(jFrame.getLocationToZ().getText())< -623) {
                 throw new NumberFormatException();
             }
-            System.out.println(manager.getId());
+            if (!command.equals("update")){
+                id = "0";
+            }
             Route route = new Route(Integer.parseInt(id), jFrame.getNameRoute().getText(), new Coordinates(Integer.parseInt(jFrame.getCoordinatesX().getText()), Integer.parseInt(jFrame.getCoordinatesY().getText())), new Location(Float.parseFloat(jFrame.getLocationFromX().getText()), Double.parseDouble(jFrame.getLocationFromY().getText()), Integer.parseInt(jFrame.getLocationFromZ().getText()), jFrame.getLocationFromName().getText()), new Location(Float.parseFloat(jFrame.getLocationToX().getText()), Double.parseDouble(jFrame.getLocationToY().getText()), Integer.parseInt(jFrame.getLocationToZ().getText()), jFrame.getLocationToName().getText()), Long.parseLong(jFrame.getDistance().getText()), "");
             manager.setRoute(route);
             manager.setId(id);

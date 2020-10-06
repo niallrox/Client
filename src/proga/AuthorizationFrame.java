@@ -21,14 +21,14 @@ public class AuthorizationFrame extends JFrame {
     private JComboBox<String> languages;
     private ResourceBundle resourceBundle = ResourceBundle.getBundle("resources");
 
-    public AuthorizationFrame(String title, DatagramChannel datagramChannel, SocketAddress socketAddress) throws IOException {
+    public AuthorizationFrame(String title, DatagramChannel datagramChannel, SocketAddress socketAddress, ConnectionFrame connectionFrame) throws IOException {
         super(title);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setContentPane(contentPane);
         this.pack();
         this.setLocationRelativeTo(null);
-        authorization.addActionListener(new AuthorizationListener(datagramChannel, loginInput, passwordInput, socketAddress, this));
-        registration.addActionListener(new RegistrationListener(datagramChannel, loginInput, passwordInput, socketAddress, this));
+        authorization.addActionListener(new AuthorizationListener(datagramChannel, loginInput, passwordInput, socketAddress, this, connectionFrame));
+        registration.addActionListener(new RegistrationListener(datagramChannel, loginInput, passwordInput, socketAddress, this, connectionFrame));
         languages.addActionListener(e -> {
             choseLanguage(languages);
             login.setText(getResourceBundle().getString("login"));
